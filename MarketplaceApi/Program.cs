@@ -135,8 +135,28 @@ app.MapGet("/api/admin/check", () =>
     return Results.Ok(new { message = "Вы администратор" });
 }).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
-app.Run();
 
+app.MapGet("/api/categories", async (MarketplaceDbContext db) =>
+{
+    var categories = await db.Categories
+        .OrderBy(c => c.Name)
+        .Select(c => new { c.Id, c.Name })
+        .ToListAsync();
+
+    return Results.Json(categories);
+});
+
+app.MapGet("/api/pickup-points", async (MarketplaceDbContext db) =>
+{
+    var points = await db.PickupPoints
+        .Where(p => p.IsActive)
+        .Select(p => new { p.Id, p.Address, p.WorkingHours })
+        .ToListAsync();
+
+    return Results.Json(points);
+});
+
+app.Run();
 
 string CreateToken(User user, string role)
 {
