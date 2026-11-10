@@ -156,6 +156,43 @@ app.MapGet("/api/pickup-points", async (MarketplaceDbContext db) =>
     return Results.Json(points);
 });
 
+app.MapGet("/api/products", async (MarketplaceDbContext db,
+    string? search, int? categoryId, decimal? minPrice, decimal? maxPrice) =>
+{
+    var query = db.Products.AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(search))
+        query = query.Where(p => p.Name.Contains(search));
+
+    if (categoryId != null)
+        query = query.Where(p => p.ProductCategories.Any(pc => pc.CategoryId == categoryId));
+
+    if (minPrice != null)
+        query = query.Where(p => p.Price >= minPrice);
+
+    if (maxPrice != null)
+        query = query.Where(p => p.Price <= maxPrice);
+
+    var products = await query
+        .OrderBy(p => p.Name)
+        .Select(p => new
+        {
+            p.Id,
+            p.Name,
+            p.Price,
+            p.ImagePath,
+            p.StockQuantity,
+            p.IsAvailable,
+            CanBuy = p.IsAvailable && p.StockQuantity > 0,
+            Categories = p.ProductCategories.Select(pc => pc.Category.Name).ToList(),
+            Rating = p.Reviews.Average(r => (double?)r.Rating),
+            ReviewsCount = p.Reviews.Count()
+        })
+        .ToListAsync();
+
+    return Results.Json(products);
+});
+
 app.Run();
 
 string CreateToken(User user, string role)
