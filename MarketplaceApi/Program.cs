@@ -221,6 +221,65 @@ app.MapGet("/api/products/{id}", async (MarketplaceDbContext db, int id) =>
 
     return Results.Json(product);
 });
+app.MapGet("/api/reviews", async (MarketplaceDbContext db, int productId) =>
+{
+    var reviews = await db.Reviews
+        .Where(r => r.ProductId == productId)
+        .OrderByDescending(r => r.CreatedAt)
+        .Select(r => new
+        {
+            r.Id,
+            r.Rating,
+            r.Text,
+            r.CreatedAt,
+            UserLogin = r.User.Login
+        })
+        .ToListAsync();
+
+    return Results.Json(reviews);
+});
+
+app.MapPost("/api/reviews", async (MarketplaceDbContext db, ClaimsPrincipal user, ReviewRequest request) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    if (request.Rating < 1 || request.Rating > 5)
+        return Results.BadRequest(new { message = "Оценка должна быть от 1 до 5" });
+
+    bool productExists = await db.Products.AnyAsync(p => p.Id == request.ProductId);
+    if (!productExists)
+        return Results.NotFound(new { message = "Товар не найден" });
+
+    bool alreadyReviewed = await db.Reviews
+        .AnyAsync(r => r.UserId == userId && r.ProductId == request.ProductId);
+    if (alreadyReviewed)
+        return Results.Conflict(new { message = "Вы уже оставили отзыв на этот товар" });
+
+    var review = new Review
+    {
+        UserId = userId,
+        ProductId = request.ProductId,
+        Rating = (byte)request.Rating,
+        Text = request.Text
+    };
+
+    db.Reviews.Add(review);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/reviews/{review.Id}", new { review.Id, review.Rating, review.Text });
+}).RequireAuthorization();
+
+app.MapDelete("/api/reviews/{id}", async (MarketplaceDbContext db, int id) =>
+{
+    var review = await db.Reviews.FirstOrDefaultAsync(r => r.Id == id);
+    if (review == null)
+        return Results.NotFound(new { message = "Отзыв не найден" });
+
+    db.Reviews.Remove(review);
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { message = "Отзыв удалён" });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
 app.Run();
 
@@ -246,3 +305,4 @@ string CreateToken(User user, string role)
 
 record RegisterRequest(string Login, string Password, string ConfirmPassword);
 record LoginRequest(string Login, string Password);
+record ReviewRequest(int ProductId, int Rating, string? Text);
