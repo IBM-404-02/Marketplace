@@ -193,6 +193,35 @@ app.MapGet("/api/products", async (MarketplaceDbContext db,
     return Results.Json(products);
 });
 
+app.MapGet("/api/products/{id}", async (MarketplaceDbContext db, int id) =>
+{
+    var product = await db.Products
+        .Where(p => p.Id == id)
+        .Select(p => new
+        {
+            p.Id,
+            p.Name,
+            p.Description,
+            p.Price,
+            p.ImagePath,
+            p.StockQuantity,
+            p.PackQuantity,
+            p.IsAvailable,
+            CanBuy = p.IsAvailable && p.StockQuantity > 0,
+            Categories = p.ProductCategories
+                .Select(pc => new { pc.Category.Id, pc.Category.Name })
+                .ToList(),
+            Rating = p.Reviews.Average(r => (double?)r.Rating),
+            ReviewsCount = p.Reviews.Count()
+        })
+        .FirstOrDefaultAsync();
+
+    if (product == null)
+        return Results.NotFound(new { message = "Товар не найден" });
+
+    return Results.Json(product);
+});
+
 app.Run();
 
 string CreateToken(User user, string role)
