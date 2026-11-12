@@ -406,6 +406,41 @@ app.MapGet("/api/pickup-points", async (MarketplaceDbContext db, bool? all) =>
     return Results.Json(points);
 });
 
+app.MapPost("/api/pickup-points", async (MarketplaceDbContext db, PickupPointRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Address))
+        return Results.BadRequest(new { message = "Адрес обязателен" });
+
+    var point = new PickupPoint
+    {
+        Address = request.Address,
+        WorkingHours = request.WorkingHours,
+        IsActive = true
+    };
+
+    db.PickupPoints.Add(point);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/pickup-points/{point.Id}", new { point.Id, point.Address });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
+app.MapPut("/api/pickup-points", async (MarketplaceDbContext db, PickupPointRequest request) =>
+{
+    var point = await db.PickupPoints.FirstOrDefaultAsync(p => p.Id == request.Id);
+    if (point == null)
+        return Results.NotFound(new { message = "Пункт выдачи не найден" });
+
+    if (string.IsNullOrWhiteSpace(request.Address))
+        return Results.BadRequest(new { message = "Адрес обязателен" });
+
+    point.Address = request.Address;
+    point.WorkingHours = request.WorkingHours;
+    point.IsActive = request.IsActive;
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { point.Id, point.Address, point.IsActive });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
 app.Run();
 
 
@@ -433,4 +468,8 @@ string CreateToken(User user, string role)
 record RegisterRequest(string Login, string Password, string ConfirmPassword);
 record LoginRequest(string Login, string Password);
 record ReviewRequest(int ProductId, int Rating, string? Text);
+record ProductRequest(int Id, string Name, string? Description, decimal Price, string? ImagePath,
+    int StockQuantity, int? PackQuantity, bool IsAvailable, List<int> CategoryIds);
+record CategoryRequest(int Id, string Name);
+record PickupPointRequest(int Id, string Address, string? WorkingHours, bool IsActive);
 
