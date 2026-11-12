@@ -358,6 +358,40 @@ app.MapPut("/api/products", async (MarketplaceDbContext db, ProductRequest reque
     return Results.Json(new { product.Id, product.Name, message = "Товар обновлён" });
 }).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
+
+app.MapPost("/api/categories", async (MarketplaceDbContext db, CategoryRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Name))
+        return Results.BadRequest(new { message = "Название обязательно" });
+
+    if (await db.Categories.AnyAsync(c => c.Name == request.Name))
+        return Results.Conflict(new { message = "Такая категория уже есть" });
+
+    var category = new Category { Name = request.Name };
+    db.Categories.Add(category);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/categories/{category.Id}", new { category.Id, category.Name });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
+app.MapPut("/api/categories", async (MarketplaceDbContext db, CategoryRequest request) =>
+{
+    var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == request.Id);
+    if (category == null)
+        return Results.NotFound(new { message = "Категория не найдена" });
+
+    if (string.IsNullOrWhiteSpace(request.Name))
+        return Results.BadRequest(new { message = "Название обязательно" });
+
+    if (await db.Categories.AnyAsync(c => c.Name == request.Name && c.Id != request.Id))
+        return Results.Conflict(new { message = "Такая категория уже есть" });
+
+    category.Name = request.Name;
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { category.Id, category.Name });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
 app.Run();
 
 
@@ -385,3 +419,4 @@ string CreateToken(User user, string role)
 record RegisterRequest(string Login, string Password, string ConfirmPassword);
 record LoginRequest(string Login, string Password);
 record ReviewRequest(int ProductId, int Rating, string? Text);
+
