@@ -145,15 +145,6 @@ app.MapGet("/api/categories", async (MarketplaceDbContext db) =>
     return Results.Json(categories);
 });
 
-app.MapGet("/api/pickup-points", async (MarketplaceDbContext db) =>
-{
-    var points = await db.PickupPoints
-        .Where(p => p.IsActive)
-        .Select(p => new { p.Id, p.Address, p.WorkingHours })
-        .ToListAsync();
-
-    return Results.Json(points);
-});
 
 app.MapGet("/api/products", async (MarketplaceDbContext db,
     string? search, int? categoryId, decimal? minPrice, decimal? maxPrice) =>
