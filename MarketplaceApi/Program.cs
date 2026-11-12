@@ -392,6 +392,20 @@ app.MapPut("/api/categories", async (MarketplaceDbContext db, CategoryRequest re
     return Results.Json(new { category.Id, category.Name });
 }).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
+app.MapGet("/api/pickup-points", async (MarketplaceDbContext db, bool? all) =>
+{
+    var query = db.PickupPoints.AsQueryable();
+
+    if (all != true)
+        query = query.Where(p => p.IsActive);
+
+    var points = await query
+        .Select(p => new { p.Id, p.Address, p.WorkingHours, p.IsActive })
+        .ToListAsync();
+
+    return Results.Json(points);
+});
+
 app.Run();
 
 
