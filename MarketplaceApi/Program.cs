@@ -280,7 +280,87 @@ app.MapDelete("/api/reviews/{id}", async (MarketplaceDbContext db, int id) =>
     return Results.Json(new { message = "Отзыв удалён" });
 }).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
+
+app.MapPost("/api/products", async (MarketplaceDbContext db, ProductRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Name))
+        return Results.BadRequest(new { message = "Название обязательно" });
+
+    if (request.Price < 0 || request.StockQuantity < 0)
+        return Results.BadRequest(new { message = "Цена и остаток не могут быть отрицательными" });
+
+    var categoryIds = request.CategoryIds.Distinct().ToList();
+    int foundCategories = await db.Categories.CountAsync(c => categoryIds.Contains(c.Id));
+    if (categoryIds.Count == 0 || foundCategories != categoryIds.Count)
+        return Results.BadRequest(new { message = "Укажите существующие категории" });
+
+    var product = new Product
+    {
+        Name = request.Name,
+        Description = request.Description,
+        Price = request.Price,
+        ImagePath = request.ImagePath,
+        StockQuantity = request.StockQuantity,
+        PackQuantity = request.PackQuantity,
+        IsAvailable = request.IsAvailable
+    };
+
+    foreach (var categoryId in categoryIds)
+        product.ProductCategories.Add(new ProductCategory { CategoryId = categoryId });
+
+    db.Products.Add(product);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/products/{product.Id}", new { product.Id, product.Name });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
+app.MapPut("/api/products", async (MarketplaceDbContext db, ProductRequest request) =>
+{
+    var product = await db.Products
+        .Include(p => p.ProductCategories)
+        .FirstOrDefaultAsync(p => p.Id == request.Id);
+
+    if (product == null)
+        return Results.NotFound(new { message = "Товар не найден" });
+
+    if (string.IsNullOrWhiteSpace(request.Name))
+        return Results.BadRequest(new { message = "Название обязательно" });
+
+    if (request.Price < 0 || request.StockQuantity < 0)
+        return Results.BadRequest(new { message = "Цена и остаток не могут быть отрицательными" });
+
+    var categoryIds = request.CategoryIds.Distinct().ToList();
+    int foundCategories = await db.Categories.CountAsync(c => categoryIds.Contains(c.Id));
+    if (categoryIds.Count == 0 || foundCategories != categoryIds.Count)
+        return Results.BadRequest(new { message = "Укажите существующие категории" });
+
+    product.Name = request.Name;
+    product.Description = request.Description;
+    product.Price = request.Price;
+    product.ImagePath = request.ImagePath;
+    product.StockQuantity = request.StockQuantity;
+    product.PackQuantity = request.PackQuantity;
+    product.IsAvailable = request.IsAvailable;
+
+    var toRemove = product.ProductCategories
+        .Where(pc => !categoryIds.Contains(pc.CategoryId))
+        .ToList();
+    db.ProductCategories.RemoveRange(toRemove);
+
+    foreach (var categoryId in categoryIds)
+    {
+        if (!product.ProductCategories.Any(pc => pc.CategoryId == categoryId))
+            product.ProductCategories.Add(new ProductCategory { CategoryId = categoryId });
+    }
+
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { product.Id, product.Name, message = "Товар обновлён" });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
 app.Run();
+
+
 
 string CreateToken(User user, string role)
 {
