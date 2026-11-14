@@ -432,6 +432,176 @@ app.MapPut("/api/pickup-points", async (MarketplaceDbContext db, PickupPointRequ
     return Results.Json(new { point.Id, point.Address, point.IsActive });
 }).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
 
+app.MapGet("/api/cart", async (MarketplaceDbContext db, ClaimsPrincipal user) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var items = await db.CartItems
+        .Where(c => c.UserId == userId)
+        .Select(c => new
+        {
+            c.Id,
+            c.ProductId,
+            ProductName = c.Product.Name,
+            c.Product.ImagePath,
+            c.Product.Price,
+            c.Quantity,
+            Sum = c.Product.Price * c.Quantity,
+            CanBuy = c.Product.IsAvailable && c.Product.StockQuantity >= c.Quantity
+        })
+        .ToListAsync();
+
+    return Results.Json(new
+    {
+        Items = items,
+        Total = items.Sum(i => i.Sum)
+    });
+}).RequireAuthorization();
+
+app.MapPost("/api/cart", async (MarketplaceDbContext db, ClaimsPrincipal user, CartRequest request) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    if (request.Quantity < 1)
+        return Results.BadRequest(new { message = "Количество должно быть больше нуля" });
+
+    var product = await db.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId);
+    if (product == null)
+        return Results.NotFound(new { message = "Товар не найден" });
+
+    if (!product.IsAvailable || product.StockQuantity == 0)
+        return Results.BadRequest(new { message = "Товар недоступен для покупки" });
+
+    var item = await db.CartItems
+        .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId);
+
+    int newQuantity = (item?.Quantity ?? 0) + request.Quantity;
+
+    if (newQuantity > product.StockQuantity)
+        return Results.BadRequest(new { message = $"На складе только {product.StockQuantity} шт." });
+
+    if (item == null)
+    {
+        item = new CartItem
+        {
+            UserId = userId,
+            ProductId = request.ProductId,
+            Quantity = request.Quantity
+        };
+        db.CartItems.Add(item);
+    }
+    else
+    {
+        item.Quantity = newQuantity;
+    }
+
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { item.Id, item.ProductId, item.Quantity });
+}).RequireAuthorization();
+
+app.MapPut("/api/cart", async (MarketplaceDbContext db, ClaimsPrincipal user, CartUpdateRequest request) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var item = await db.CartItems
+        .Include(c => c.Product)
+        .FirstOrDefaultAsync(c => c.Id == request.Id && c.UserId == userId);
+
+    if (item == null)
+        return Results.NotFound(new { message = "Позиция корзины не найдена" });
+
+    if (request.Quantity < 1)
+        return Results.BadRequest(new { message = "Количество должно быть больше нуля" });
+
+    if (request.Quantity > item.Product.StockQuantity)
+        return Results.BadRequest(new { message = $"На складе только {item.Product.StockQuantity} шт." });
+
+    item.Quantity = request.Quantity;
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { item.Id, item.ProductId, item.Quantity });
+}).RequireAuthorization();
+
+app.MapDelete("/api/cart/{id}", async (MarketplaceDbContext db, ClaimsPrincipal user, int id) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var item = await db.CartItems
+        .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
+
+    if (item == null)
+        return Results.NotFound(new { message = "Позиция корзины не найдена" });
+
+    db.CartItems.Remove(item);
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { message = "Товар удалён из корзины" });
+}).RequireAuthorization();
+
+app.MapGet("/api/favorites", async (MarketplaceDbContext db, ClaimsPrincipal user) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var favorites = await db.Favorites
+        .Where(f => f.UserId == userId)
+        .OrderByDescending(f => f.AddedAt)
+        .Select(f => new
+        {
+            f.Id,
+            f.ProductId,
+            ProductName = f.Product.Name,
+            f.Product.ImagePath,
+            f.Product.Price,
+            CanBuy = f.Product.IsAvailable && f.Product.StockQuantity > 0,
+            f.AddedAt
+        })
+        .ToListAsync();
+
+    return Results.Json(favorites);
+}).RequireAuthorization();
+
+app.MapPost("/api/favorites", async (MarketplaceDbContext db, ClaimsPrincipal user, FavoriteRequest request) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    bool productExists = await db.Products.AnyAsync(p => p.Id == request.ProductId);
+    if (!productExists)
+        return Results.NotFound(new { message = "Товар не найден" });
+
+    bool alreadyAdded = await db.Favorites
+        .AnyAsync(f => f.UserId == userId && f.ProductId == request.ProductId);
+    if (alreadyAdded)
+        return Results.Conflict(new { message = "Товар уже в избранном" });
+
+    var favorite = new Favorite
+    {
+        UserId = userId,
+        ProductId = request.ProductId
+    };
+
+    db.Favorites.Add(favorite);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/favorites/{favorite.Id}", new { favorite.Id, favorite.ProductId });
+}).RequireAuthorization();
+
+app.MapDelete("/api/favorites/{id}", async (MarketplaceDbContext db, ClaimsPrincipal user, int id) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var favorite = await db.Favorites
+        .FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
+
+    if (favorite == null)
+        return Results.NotFound(new { message = "Товар в избранном не найден" });
+
+    db.Favorites.Remove(favorite);
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { message = "Товар удалён из избранного" });
+}).RequireAuthorization();
+
 app.Run();
 
 
@@ -454,7 +624,6 @@ string CreateToken(User user, string role)
     return new JwtSecurityTokenHandler().WriteToken(token);
 }
 
-
 record RegisterRequest(string Login, string Password, string ConfirmPassword);
 record LoginRequest(string Login, string Password);
 record ReviewRequest(int ProductId, int Rating, string? Text);
@@ -462,4 +631,7 @@ record ProductRequest(int Id, string Name, string? Description, decimal Price, s
     int StockQuantity, int? PackQuantity, bool IsAvailable, List<int> CategoryIds);
 record CategoryRequest(int Id, string Name);
 record PickupPointRequest(int Id, string Address, string? WorkingHours, bool IsActive);
+record CartRequest(int ProductId, int Quantity);
+record CartUpdateRequest(int Id, int Quantity);
+record FavoriteRequest(int ProductId);
 
