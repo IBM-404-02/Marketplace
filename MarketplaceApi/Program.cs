@@ -602,6 +602,218 @@ app.MapDelete("/api/favorites/{id}", async (MarketplaceDbContext db, ClaimsPrinc
     return Results.Json(new { message = "Товар удалён из избранного" });
 }).RequireAuthorization();
 
+app.MapGet("/api/delivery-methods", async (MarketplaceDbContext db) =>
+{
+    var methods = await db.DeliveryMethods
+        .Select(m => new { m.Id, m.Name })
+        .ToListAsync();
+
+    return Results.Json(methods);
+});
+
+app.MapGet("/api/order-statuses", async (MarketplaceDbContext db) =>
+{
+    var statuses = await db.OrderStatuses
+        .Select(s => new { s.Id, s.Name })
+        .ToListAsync();
+
+    return Results.Json(statuses);
+});
+
+app.MapPost("/api/orders", async (MarketplaceDbContext db, ClaimsPrincipal user, OrderRequest request) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var orderItems = new List<OrderItem>();
+    var cartItems = new List<CartItem>();
+
+    if (request.ProductId != null)
+    {
+        int quantity = request.Quantity ?? 1;
+        if (quantity < 1)
+            return Results.BadRequest(new { message = "Количество должно быть больше нуля" });
+
+        var product = await db.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId);
+        if (product == null)
+            return Results.NotFound(new { message = "Товар не найден" });
+
+        orderItems.Add(new OrderItem
+        {
+            Product = product,
+            Quantity = quantity,
+            PriceAtPurchase = product.Price
+        });
+    }
+    else
+    {
+        cartItems = await db.CartItems
+            .Include(c => c.Product)
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+
+        foreach (var cartItem in cartItems)
+        {
+            orderItems.Add(new OrderItem
+            {
+                Product = cartItem.Product,
+                Quantity = cartItem.Quantity,
+                PriceAtPurchase = cartItem.Product.Price
+            });
+        }
+    }
+
+    if (orderItems.Count == 0)
+        return Results.BadRequest(new { message = "Корзина пуста" });
+
+    foreach (var item in orderItems)
+    {
+        if (!item.Product.IsAvailable || item.Product.StockQuantity < item.Quantity)
+            return Results.BadRequest(new
+            {
+                message = $"Товар «{item.Product.Name}» недоступен или его недостаточно на складе"
+            });
+    }
+
+    decimal total = orderItems.Sum(i => i.PriceAtPurchase * i.Quantity);
+
+    var method = await db.DeliveryMethods.FirstOrDefaultAsync(m => m.Id == request.DeliveryMethodId);
+    if (method == null)
+        return Results.BadRequest(new { message = "Способ получения не найден" });
+
+    bool isPickup = method.Name == "Самовывоз";
+
+    if (!isPickup && total < 600)
+        return Results.BadRequest(new { message = "Доставка доступна для заказов от 600 ₽. Выберите самовывоз" });
+
+    if (isPickup)
+    {
+        bool pointExists = await db.PickupPoints
+            .AnyAsync(p => p.Id == request.PickupPointId && p.IsActive);
+        if (!pointExists)
+            return Results.BadRequest(new { message = "Выберите действующий пункт выдачи" });
+    }
+    else if (string.IsNullOrWhiteSpace(request.DeliveryAddress))
+    {
+        return Results.BadRequest(new { message = "Укажите адрес доставки" });
+    }
+
+    var status = await db.OrderStatuses.FirstAsync(s => s.Name == "Оформлен");
+
+    var order = new Order
+    {
+        UserId = userId,
+        DeliveryMethodId = method.Id,
+        PickupPointId = isPickup ? request.PickupPointId : null,
+        DeliveryAddress = isPickup ? null : request.DeliveryAddress,
+        StatusId = status.Id
+    };
+
+    foreach (var item in orderItems)
+    {
+        item.Product.StockQuantity -= item.Quantity;
+        order.OrderItems.Add(item);
+    }
+
+    db.Orders.Add(order);
+
+    db.CartItems.RemoveRange(cartItems);
+
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/api/orders/{order.Id}", new
+    {
+        order.Id,
+        Total = total,
+        message = "Заказ оформлен"
+    });
+}).RequireAuthorization();
+
+app.MapGet("/api/orders", async (MarketplaceDbContext db, ClaimsPrincipal user, string? sort, bool? all) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+
+    var query = db.Orders.AsQueryable();
+
+    if (all == true)
+    {
+        if (!user.IsInRole("Admin"))
+            return Results.Forbid();
+    }
+    else
+    {
+        query = query.Where(o => o.UserId == userId);
+    }
+
+    query = sort == "asc"
+        ? query.OrderBy(o => o.OrderDate)
+        : query.OrderByDescending(o => o.OrderDate);
+
+    var orders = await query
+        .Select(o => new
+        {
+            o.Id,
+            o.OrderDate,
+            UserLogin = o.User.Login,
+            Status = o.Status.Name,
+            DeliveryMethod = o.DeliveryMethod.Name,
+            ItemsCount = o.OrderItems.Sum(i => i.Quantity),
+            Total = o.OrderItems.Sum(i => i.PriceAtPurchase * i.Quantity)
+        })
+        .ToListAsync();
+
+    return Results.Json(orders);
+}).RequireAuthorization();
+
+app.MapGet("/api/orders/{id}", async (MarketplaceDbContext db, ClaimsPrincipal user, int id) =>
+{
+    int userId = int.Parse(user.FindFirst("sub")!.Value);
+    bool isAdmin = user.IsInRole("Admin");
+
+    var order = await db.Orders
+        .Where(o => o.Id == id && (o.UserId == userId || isAdmin))
+        .Select(o => new
+        {
+            o.Id,
+            o.OrderDate,
+            UserLogin = o.User.Login,
+            Status = o.Status.Name,
+            DeliveryMethod = o.DeliveryMethod.Name,
+            PickupPoint = o.PickupPoint != null ? o.PickupPoint.Address : null,
+            o.DeliveryAddress,
+            Items = o.OrderItems.Select(i => new
+            {
+                i.ProductId,
+                ProductName = i.Product.Name,
+                i.Quantity,
+                i.PriceAtPurchase,
+                Sum = i.PriceAtPurchase * i.Quantity
+            }).ToList(),
+            Total = o.OrderItems.Sum(i => i.PriceAtPurchase * i.Quantity)
+        })
+        .FirstOrDefaultAsync();
+
+    if (order == null)
+        return Results.NotFound(new { message = "Заказ не найден" });
+
+    return Results.Json(order);
+}).RequireAuthorization();
+
+app.MapPut("/api/orders", async (MarketplaceDbContext db, OrderStatusRequest request) =>
+{
+    var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == request.Id);
+    if (order == null)
+        return Results.NotFound(new { message = "Заказ не найден" });
+
+    bool statusExists = await db.OrderStatuses.AnyAsync(s => s.Id == request.StatusId);
+    if (!statusExists)
+        return Results.BadRequest(new { message = "Такого статуса нет" });
+
+    order.StatusId = request.StatusId;
+    await db.SaveChangesAsync();
+
+    return Results.Json(new { order.Id, order.StatusId, message = "Статус изменён" });
+}).RequireAuthorization(policy => policy.RequireAuthenticatedUser().RequireRole("Admin"));
+
 app.Run();
 
 
@@ -634,4 +846,6 @@ record PickupPointRequest(int Id, string Address, string? WorkingHours, bool IsA
 record CartRequest(int ProductId, int Quantity);
 record CartUpdateRequest(int Id, int Quantity);
 record FavoriteRequest(int ProductId);
-
+record OrderRequest(int DeliveryMethodId, int? PickupPointId, string? DeliveryAddress,
+    int? ProductId, int? Quantity);
+record OrderStatusRequest(int Id, int StatusId);
