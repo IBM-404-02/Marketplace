@@ -435,7 +435,6 @@ app.MapPut("/api/pickup-points", async (MarketplaceDbContext db, PickupPointRequ
 app.Run();
 
 
-
 string CreateToken(User user, string role)
 {
     var claims = new[]
