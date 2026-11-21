@@ -21,84 +21,113 @@ namespace MarketplaceSWAGAwpf
     /// </summary>
     public partial class MainWindow : Window
     {
-            public MainWindow()
-            {
-                InitializeComponent();
-                UpdateUI();
+        public MainWindow()
+        {
+            InitializeComponent();
+            MainFrame.Navigate(new CataloguePage());
+        }
 
-                // Показываем каталог при старте
-                MainFrame.Navigate(new CataloguePage());
-            }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var timer = new System.Windows.Threading.DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.IsEnabled = true;
+            timer.Tick += (o, t) => {
+                TBDateTime.Text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            };
+            timer.Start();
 
-            // Обновление интерфейса в зависимости от авторизации
-            public void UpdateUI()
+            UpdateMenuVisibility();
+        }
+
+        public void UpdateMenuVisibility()
+        {
+            if (Core.CurrentUser != null)
             {
-                if (Core.IsAuthorized)
+                BTNcart.Visibility = Visibility.Visible;
+                BTNfavorites.Visibility = Visibility.Visible;
+                BTNorders.Visibility = Visibility.Visible;
+                BTNLogout.Visibility = Visibility.Visible;
+
+                TBUserInfo.Text = $"{Core.CurrentUser.Login}\n({Core.CurrentUser.Roles.Name})";
+
+                if (Core.IsAdmin)
                 {
-                    // Пользователь авторизован
-                    TbUser.Text = $"{Core.CurrentUser?.Login} ({Core.CurrentUser?.Role})";
-                    BtnAccount.Visibility = Visibility.Visible;
-                    BtnLogout.Visibility = Visibility.Visible;
-                    BtnLogin.Visibility = Visibility.Collapsed;
-
-                    // Показываем кнопки для авторизованных
-                    BtnCart.Visibility = Visibility.Visible;
-                    BtnFavorites.Visibility = Visibility.Visible;
-                    BtnOrders.Visibility = Visibility.Visible;
-
-                    // Показываем админку только админам
-                    if (Core.IsAdmin)
-                    {
-                        BtnAdmin.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        BtnAdmin.Visibility = Visibility.Collapsed;
-                    }
+                    BTNadmin.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    // Гость
-                    TbUser.Text = "Гость";
-                    BtnAccount.Visibility = Visibility.Collapsed;
-                    BtnLogout.Visibility = Visibility.Collapsed;
-                    BtnLogin.Visibility = Visibility.Visible;
-                    BtnAdmin.Visibility = Visibility.Collapsed;
-
-                    // Скрываем кнопки для авторизованных
-                    BtnCart.Visibility = Visibility.Collapsed;
-                    BtnFavorites.Visibility = Visibility.Collapsed;
-                    BtnOrders.Visibility = Visibility.Collapsed;
+                    BTNadmin.Visibility = Visibility.Collapsed;
                 }
             }
-
-            // Обработчики кнопок навигации
-            private void BtnCatalogue_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new CataloguePage());
-
-            private void BtnCart_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new CartPage());
-
-            private void BtnFavorites_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new FavoritesPage());
-
-            private void BtnOrders_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new OrdersPage());
-
-            private void BtnAdmin_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new AdminPage());
-
-            private void BtnAccount_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new AccountPage());
-
-            private void BtnLogin_Click(object sender, RoutedEventArgs e) =>
-                MainFrame.Navigate(new LoginPage());
-
-            private void BtnLogout_Click(object sender, RoutedEventArgs e)
+            else
             {
-                Core.Logout();
-                UpdateUI();
-                MainFrame.Navigate(new LoginPage());
+                BTNcart.Visibility = Visibility.Collapsed;
+                BTNfavorites.Visibility = Visibility.Collapsed;
+                BTNorders.Visibility = Visibility.Collapsed;
+                BTNadmin.Visibility = Visibility.Collapsed;
+                BTNLogout.Visibility = Visibility.Collapsed;
+
+                TBUserInfo.Text = "Вы вошли как: Гость";
             }
         }
-}
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (MessageBox.Show("Вы уверены, что хотите закрыть приложение?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                e.Cancel = false;
+            }
+        }
+
+        private void BTNcatalogue_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new CataloguePage());
+        }
+
+        private void BTNcart_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new CartPage());
+        }
+
+        private void BTNfavorites_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new FavoritesPage());
+        }
+
+        private void BTNorders_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new OrdersPage());
+        }
+
+        private void BTNaccount_Click(object sender, RoutedEventArgs e)
+        {
+            if (Core.CurrentUser == null)
+            {
+                MainFrame.Navigate(new LoginPage());
+            }
+            else
+            {
+                MainFrame.Navigate(new AccountPage());
+            }
+        }
+
+        private void BTNadmin_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new AdminPage());
+        }
+
+        private void BTNLogout_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы уверены, что хотите выйти из аккаунта?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Core.Logout();
+                UpdateMenuVisibility();
+                MainFrame.Navigate(new CataloguePage());
+            }
+        }
+    }

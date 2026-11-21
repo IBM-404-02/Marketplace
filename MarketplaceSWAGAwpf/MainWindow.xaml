@@ -7,48 +7,28 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="700" Width="1100">
     <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
 
-                <!-- Верхняя панель навигации -->
-                <Border Grid.Row="0" Background="#2C2C2C" Padding="10">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+        <Frame Grid.Column="0" x:Name="MainFrame" NavigationUIVisibility="Hidden" Margin="10"/>
 
-                        <!-- Кнопки навигации -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <Button Content="Каталог" Margin="5" Padding="10,5"
-                            Click="BtnCatalogue_Click"/>
-                            <Button Content="Корзина" Margin="5" Padding="10,5"
-                            Click="BtnCart_Click" x:Name="BtnCart"/>
-                            <Button Content="Избранное" Margin="5" Padding="10,5"
-                            Click="BtnFavorites_Click" x:Name="BtnFavorites"/>
-                            <Button Content="Заказы" Margin="5" Padding="10,5"
-                            Click="BtnOrders_Click" x:Name="BtnOrders"/>
-                            <Button Content="Админка" Margin="5" Padding="10,5"
-                            Click="BtnAdmin_Click" x:Name="BtnAdmin" Visibility="Collapsed"/>
-                        </StackPanel>
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center" Margin="10">
+            <TextBlock Text="MARKETPLACE" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                        <!-- Информация о пользователе -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <TextBlock x:Name="TbUser" VerticalAlignment="Center"
-                               Foreground="White" Margin="10,0"/>
-                            <Button Content="Кабинет" Margin="5" Padding="10,5"
-                            Click="BtnAccount_Click" x:Name="BtnAccount" Visibility="Collapsed"/>
-                            <Button Content="Войти" Margin="5" Padding="10,5"
-                            Click="BtnLogin_Click" x:Name="BtnLogin"/>
-                            <Button Content="Выйти" Margin="5" Padding="10,5"
-                            Click="BtnLogout_Click" x:Name="BtnLogout" Visibility="Collapsed"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+            <Button x:Name="BTNcatalogue" ToolTip="Каталог товаров" Content="Каталог" Click="BTNcatalogue_Click" Margin="0, 10" Width="160"/>
+            
+            <Button x:Name="BTNcart" ToolTip="Корзина" Content="Корзина" Click="BTNcart_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
+            <Button x:Name="BTNfavorites" ToolTip="Избранные товары" Content="Избранное" Click="BTNfavorites_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
+            <Button x:Name="BTNorders" ToolTip="История заказов" Content="Заказы" Click="BTNorders_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
 
-                <!-- Область для страниц -->
-                <Frame Grid.Row="1" x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
-            </Grid>
-        </Window>
+            <Button x:Name="BTNaccount" ToolTip="Личный кабинет или вход" Content="Аккаунт" Click="BTNaccount_Click" Margin="0, 10" Width="160"/>
+            <Button x:Name="BTNadmin" ToolTip="Администрирование" Content="Админка" Click="BTNadmin_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
+            <Button x:Name="BTNLogout" ToolTip="Выйти из аккаунта" Content="Выйти" Click="BTNLogout_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
+
+            <TextBlock x:Name="TBUserInfo" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,40,0,0" FontStyle="Italic" Foreground="Gray" TextAlignment="Center"/>
+            <TextBlock x:Name="TBDateTime" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10,0,0" FontSize="12" Foreground="Gray"/>
+        </StackPanel>
+    </Grid>
+</Window>
