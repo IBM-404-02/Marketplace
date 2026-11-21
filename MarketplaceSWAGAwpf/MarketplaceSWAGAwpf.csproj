@@ -53,6 +53,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>C:\Users\Nett\source\repos\SalonHyasha\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>C:\Users\Nett\source\repos\SalonHyasha\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=11.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.11.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -74,6 +80,8 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Text.Encodings.Web, Version=11.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Text.Encodings.Web.11.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
@@ -102,6 +110,53 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CartItems.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Categories.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeliveryMethods.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Favorites.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MarketplaceDB.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderItems.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Orders.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderStatuses.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PickupPoints.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategories.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Products.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Reviews.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Roles.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="sysdiagrams.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Users.cs">
+      <DependentUpon>MarketplaceDB.tt</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -121,6 +176,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarketplaceDB.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MarketplaceDB.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MarketplaceDB.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MarketplaceDB.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Models\Dtos.cs" />
     <Compile Include="Pages\CataloguePage.xaml.cs">
       <DependentUpon>CataloguePage.xaml</DependentUpon>
@@ -142,6 +207,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EntityDeploy Include="MarketplaceDB.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MarketplaceDB.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="MarketplaceDB.edmx.diagram">
+      <DependentUpon>MarketplaceDB.edmx</DependentUpon>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -163,7 +235,21 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="MarketplaceDB.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MarketplaceDB.Context.cs</LastGenOutput>
+      <DependentUpon>MarketplaceDB.edmx</DependentUpon>
+    </Content>
+    <Content Include="MarketplaceDB.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MarketplaceDB.edmx</DependentUpon>
+      <LastGenOutput>MarketplaceDB.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="82900e0644a04629a755bf42837b19bc" Name="Diagram1" ZoomLevel="64">
+        <EntityTypeShape EntityType="MarketplaceDbModel.CartItems" Width="1.5" PointX="5.25" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Categories" Width="1.5" PointX="6" PointY="21.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.DeliveryMethods" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Favorites" Width="1.5" PointX="5.25" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.OrderItems" Width="1.5" PointX="10.5" PointY="6.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Orders" Width="1.5" PointX="8.25" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.OrderStatuses" Width="1.5" PointX="6" PointY="16.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.PickupPoints" Width="1.5" PointX="6" PointY="18.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.ProductCategories" Width="1.5" PointX="8.25" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Products" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Reviews" Width="1.5" PointX="5.25" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Roles" Width="1.5" PointX="0.75" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.sysdiagrams" Width="1.5" PointX="10.75" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="MarketplaceDbModel.Users" Width="1.5" PointX="3" PointY="6.625" IsExpanded="true" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_CartItems_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_CartItems_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_ProductCategories_Categories" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Orders_DeliveryMethods" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Favorites_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Favorites_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_OrderItems_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_OrderItems_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Orders_OrderStatuses" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Orders_PickupPoints" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Orders_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_ProductCategories_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Reviews_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Reviews_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="MarketplaceDbModel.FK_Users_Roles" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
