@@ -12,6 +12,7 @@ namespace MarketplaceSWAGAwpf
         public static List<PickupPoints> PickupPoints = Core.Context.PickupPoints.ToList();
         public static List<DeliveryMethods> DeliveryMethods = Core.Context.DeliveryMethods.ToList();
         public static List<OrderStatuses> OrderStatuses = Core.Context.OrderStatuses.ToList();
+        public static List<Products> Products = Core.Context.Products.ToList();
 
         public static void UpdateLists()
         {

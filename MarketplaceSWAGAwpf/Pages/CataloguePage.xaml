@@ -7,8 +7,66 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="CataloguePage">
-
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+            <TextBox x:Name="TBSearch" Margin="0, 0, 10, 0" Width="250" Height="30" TextChanged="TBSearch_TextChanged"/>
+
+            <ComboBox x:Name="CBSort" Margin="0, 0, 10, 0" Width="150" Height="30" SelectionChanged="CBSort_SelectionChanged">
+                <ComboBoxItem>По умолчанию</ComboBoxItem>
+                <ComboBoxItem>Сначала дешевые</ComboBoxItem>
+                <ComboBoxItem>Сначала дорогие</ComboBoxItem>
+                <ComboBoxItem>По названию (А-Я)</ComboBoxItem>
+                <ComboBoxItem>По названию (Я-А)</ComboBoxItem>
+            </ComboBox>
+
+            <ComboBox x:Name="CBFilter" Margin="0, 0, 10, 0" Width="150" Height="30" SelectionChanged="CBFilter_SelectionChanged"/>
+
+            <TextBox x:Name="TBMinPrice" Margin="0, 0, 5, 0" Width="70" Height="30" TextChanged="TBSearch_TextChanged" ToolTip="Мин. цена"/>
+            <TextBox x:Name="TBMaxPrice" Margin="0, 0, 10, 0" Width="70" Height="30" TextChanged="TBSearch_TextChanged" ToolTip="Макс. цена"/>
+        </StackPanel>
+
+        <ListBox x:Name="LBCatalogue" Grid.Row="1" Margin="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" MouseDoubleClick="LBCatalogue_MouseDoubleClick">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="10" BorderThickness="1" BorderBrush="LightGray" Padding="10" Width="350" Height="150" Background="White">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="LightGray" CornerRadius="5">
+                                <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
+                            </Border>
+
+                            <Grid Grid.Column="1" Margin="10,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+                                <TextBlock Grid.Row="1" Text="{Binding Price, StringFormat={}{0} ₽}" FontSize="16" Foreground="Green" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="50" FontSize="12"/>
+                                <TextBlock Grid.Row="3" Text="{Binding StockQuantity, StringFormat='На складе: {0} шт.'}" FontSize="12" Foreground="Gray"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>

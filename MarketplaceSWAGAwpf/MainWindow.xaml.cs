@@ -32,7 +32,8 @@ namespace MarketplaceSWAGAwpf
             var timer = new System.Windows.Threading.DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.IsEnabled = true;
-            timer.Tick += (o, t) => {
+            timer.Tick += (o, t) =>
+            {
                 TBDateTime.Text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
             };
             timer.Start();
@@ -131,3 +132,4 @@ namespace MarketplaceSWAGAwpf
             }
         }
     }
+}
