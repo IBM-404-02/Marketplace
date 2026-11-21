@@ -17,7 +17,7 @@ namespace MarketplaceSWAGAwpf
 
         public static bool IsAdmin => CurrentUser != null && CurrentUser.RoleId == 2;
 
-        public static string HashPassword(string password)
+        public static string GetHash(string password)
         {
             using (var sha256 = SHA256.Create())
             {
