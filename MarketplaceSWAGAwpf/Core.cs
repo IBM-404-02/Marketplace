@@ -15,7 +15,7 @@ namespace MarketplaceSWAGAwpf
 
         public static bool IsAuthorized => CurrentUser != null;
 
-        public static bool IsAdmin => CurrentUser != null && CurrentUser.Roles.Name == "Admin";
+        public static bool IsAdmin => CurrentUser != null && CurrentUser.RoleId == 2;
 
         public static string HashPassword(string password)
         {

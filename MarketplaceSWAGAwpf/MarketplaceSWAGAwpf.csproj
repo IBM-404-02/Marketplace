@@ -122,6 +122,7 @@
     <Compile Include="Favorites.cs">
       <DependentUpon>MarketplaceDB.tt</DependentUpon>
     </Compile>
+    <Compile Include="Lists.cs" />
     <Compile Include="MarketplaceDB.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
