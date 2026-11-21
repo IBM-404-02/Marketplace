@@ -1,0 +1,54 @@
+﻿<Window x:Class="MarketplaceSWAGAwpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MarketplaceSWAGAwpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1100">
+    <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Верхняя панель навигации -->
+                <Border Grid.Row="0" Background="#2C2C2C" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Кнопки навигации -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Button Content="Каталог" Margin="5" Padding="10,5"
+                            Click="BtnCatalogue_Click"/>
+                            <Button Content="Корзина" Margin="5" Padding="10,5"
+                            Click="BtnCart_Click" x:Name="BtnCart"/>
+                            <Button Content="Избранное" Margin="5" Padding="10,5"
+                            Click="BtnFavorites_Click" x:Name="BtnFavorites"/>
+                            <Button Content="Заказы" Margin="5" Padding="10,5"
+                            Click="BtnOrders_Click" x:Name="BtnOrders"/>
+                            <Button Content="Админка" Margin="5" Padding="10,5"
+                            Click="BtnAdmin_Click" x:Name="BtnAdmin" Visibility="Collapsed"/>
+                        </StackPanel>
+
+                        <!-- Информация о пользователе -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock x:Name="TbUser" VerticalAlignment="Center"
+                               Foreground="White" Margin="10,0"/>
+                            <Button Content="Кабинет" Margin="5" Padding="10,5"
+                            Click="BtnAccount_Click" x:Name="BtnAccount" Visibility="Collapsed"/>
+                            <Button Content="Войти" Margin="5" Padding="10,5"
+                            Click="BtnLogin_Click" x:Name="BtnLogin"/>
+                            <Button Content="Выйти" Margin="5" Padding="10,5"
+                            Click="BtnLogout_Click" x:Name="BtnLogout" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Область для страниц -->
+                <Frame Grid.Row="1" x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+            </Grid>
+        </Window>
