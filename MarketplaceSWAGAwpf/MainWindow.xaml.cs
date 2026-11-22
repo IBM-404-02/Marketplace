@@ -27,20 +27,6 @@ namespace MarketplaceSWAGAwpf
             MainFrame.Navigate(new CataloguePage());
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            var timer = new System.Windows.Threading.DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 1);
-            timer.IsEnabled = true;
-            timer.Tick += (o, t) =>
-            {
-                TBDateTime.Text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-            };
-            timer.Start();
-
-            UpdateMenuVisibility();
-        }
-
         public void UpdateMenuVisibility()
         {
             if (Core.CurrentUser != null)
@@ -49,8 +35,6 @@ namespace MarketplaceSWAGAwpf
                 BTNfavorites.Visibility = Visibility.Visible;
                 BTNorders.Visibility = Visibility.Visible;
                 BTNLogout.Visibility = Visibility.Visible;
-
-                TBUserInfo.Text = $"{Core.CurrentUser.Login}\n({Core.CurrentUser.Roles.Name})";
 
                 if (Core.IsAdmin)
                 {
@@ -68,8 +52,6 @@ namespace MarketplaceSWAGAwpf
                 BTNorders.Visibility = Visibility.Collapsed;
                 BTNadmin.Visibility = Visibility.Collapsed;
                 BTNLogout.Visibility = Visibility.Collapsed;
-
-                TBUserInfo.Text = "Вы вошли как: Гость";
             }
         }
 

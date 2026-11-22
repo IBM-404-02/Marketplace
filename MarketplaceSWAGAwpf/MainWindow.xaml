@@ -26,9 +26,6 @@
             <Button x:Name="BTNaccount" ToolTip="Личный кабинет или вход" Content="Аккаунт" Click="BTNaccount_Click" Margin="0, 10" Width="160"/>
             <Button x:Name="BTNadmin" ToolTip="Администрирование" Content="Админка" Click="BTNadmin_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
             <Button x:Name="BTNLogout" ToolTip="Выйти из аккаунта" Content="Выйти" Click="BTNLogout_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
-
-            <TextBlock x:Name="TBUserInfo" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,40,0,0" FontStyle="Italic" Foreground="Gray" TextAlignment="Center"/>
-            <TextBlock x:Name="TBDateTime" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10,0,0" FontSize="12" Foreground="Gray"/>
         </StackPanel>
     </Grid>
 </Window>
