@@ -9,6 +9,14 @@
       Title="AccountPage">
 
     <Grid>
-        
+        <StackPanel x:Name="SPUser" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical" Width="300">
+            <TextBlock Text="Личный кабинет" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <Label Content="Логин:" FontWeight="Bold"/>
+            <TextBlock x:Name="TBLogin" Margin="0,0,0,15" FontSize="16"/>
+
+            <Label Content="Роль:" FontWeight="Bold"/>
+            <TextBlock x:Name="TBRole" Margin="0,0,0,15" FontSize="16"/>
+        </StackPanel>
     </Grid>
 </Page>

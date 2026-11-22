@@ -16,6 +16,7 @@ namespace MarketplaceSWAGAwpf
         public static List<Orders> Orders = Core.Context.Orders.ToList();
         public static List<OrderItems> OrderItems = Core.Context.OrderItems.ToList();
         public static List<Favorites> Favorites = Core.Context.Favorites.ToList();
+        public static List<Roles> Roles = Core.Context.Roles.ToList();
 
         public static void UpdateLists()
         {

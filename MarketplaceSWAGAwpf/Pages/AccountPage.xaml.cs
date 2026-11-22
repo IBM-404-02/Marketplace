@@ -23,6 +23,12 @@ namespace MarketplaceSWAGAwpf.Pages
         public AccountPage()
         {
             InitializeComponent();
+            LoadUserData();
+        }
+        private void LoadUserData()
+        {
+            TBLogin.Text = Core.CurrentUser.Login;
+            TBRole.Text = Core.CurrentUser.Roles.Name;
         }
     }
 }
