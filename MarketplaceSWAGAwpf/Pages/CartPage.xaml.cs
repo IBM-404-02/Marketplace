@@ -50,6 +50,16 @@ namespace MarketplaceSWAGAwpf.Pages
                     Core.Context.SaveChanges();
                     LoadCart();
                 }
+                else if (item.Quantity == 1)
+                {
+                    var result = MessageBox.Show("Удалить товар из корзины?", "Подтверждение", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Core.Context.CartItems.Remove(item);
+                        Core.Context.SaveChanges();
+                        LoadCart();
+                    }
+                }
             }
         }
 
