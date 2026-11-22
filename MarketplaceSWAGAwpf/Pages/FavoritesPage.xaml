@@ -9,6 +9,62 @@
       Title="FavoritesPage">
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+            <ComboBox x:Name="CBSort" Width="200" Height="30" SelectionChanged="CBSort_SelectionChanged">
+                <ComboBoxItem>По дате добавления (сначала новые)</ComboBoxItem>
+                <ComboBoxItem>Сначала дешевые</ComboBoxItem>
+                <ComboBoxItem>Сначала дорогие</ComboBoxItem>
+                <ComboBoxItem>По названию (А-Я)</ComboBoxItem>
+                <ComboBoxItem>По названию (Я-А)</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <ListBox x:Name="LBFavorites" Grid.Row="1" Margin="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" MouseDoubleClick="LBFavorites_MouseDoubleClick">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="10" BorderThickness="1" BorderBrush="LightGray" Padding="10" Width="350" Height="160" Background="White">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="LightGray" CornerRadius="5">
+                                <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
+                            </Border>
+
+                            <Grid Grid.Column="1" Margin="10,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="1" Text="{Binding Price, StringFormat={}{0} ₽}" FontSize="16" Foreground="Green" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Text="{Binding StockText}" FontSize="12" Foreground="Gray"/>
+
+                                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                                    <Button Content="В корзину" Width="90" Height="28" Margin="0,0,5,0" Tag="{Binding Id}" Click="BtnToCart_Click"/>
+                                    <Button Content="Удалить" Width="70" Height="28" Tag="{Binding FavoriteId}" Click="BtnRemove_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>
