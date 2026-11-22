@@ -228,5 +228,22 @@ namespace MarketplaceSWAGAwpf.Pages
         {
             NavigationService?.Navigate(new CartPage());
         }
+
+        private void BTNFastOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(TBQuantity.Text, out int quantity) || quantity <= 0)
+            {
+                MessageBox.Show("Введите корректное количество!");
+                return;
+            }
+
+            if (!_product.IsAvailable || _product.StockQuantity == 0)
+            {
+                MessageBox.Show("Товар недоступен для покупки!");
+                return;
+            }
+
+            NavigationService?.Navigate(new CheckoutPage(quantity*_product.Price, _product.Id, quantity));
+        }
     }
 }

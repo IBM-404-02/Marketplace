@@ -9,6 +9,63 @@
       Title="CartPage">
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ListBox x:Name="LBCart" Grid.Row="0" Margin="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="10" BorderThickness="1" BorderBrush="LightGray" Padding="10" Width="350" Height="150" Background="White">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="LightGray" CornerRadius="5">
+                                <Image Source="{Binding Products.ImagePath}" Stretch="UniformToFill"/>
+                            </Border>
+
+                            <Grid Grid.Column="1" Margin="10,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="{Binding Products.Name}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="1" Text="{Binding Products.Price, StringFormat={}{0} ₽}" FontSize="16" Foreground="Green" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="-" Width="30" Height="30" Tag="{Binding Id}" Click="BtnDec_Click"/>
+                                    <TextBlock Text="{Binding Quantity}" Width="40" TextAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+                                    <Button Content="+" Width="30" Height="30" Tag="{Binding Id}" Click="BtnInc_Click"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding Sum, StringFormat={}{0} ₽}" FontSize="14" FontWeight="Bold"/>
+                                    <Button Content="Удалить" Width="70" Height="25" Margin="10,0,0,0" Tag="{Binding Id}" Click="BtnRemove_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <TextBlock x:Name="TBTotal" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <Button x:Name="BTNCheckout" Content="Оформить заказ" Height="40" Padding="20,5" Margin="0,0,10,0" Click="BTNCheckout_Click"/>
+            <Button x:Name="BTNClear" Content="Очистить корзину" Height="40" Padding="20,5" Click="BTNClear_Click"/>
+        </StackPanel>
     </Grid>
 </Page>
