@@ -9,6 +9,40 @@
       Title="OrdersPage">
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="Сначала новые" Margin="0,0,10,0" Padding="10,5" Click="BtnNewest_Click"/>
+            <Button Content="Сначала старые" Padding="10,5" Click="BtnOldest_Click"/>
+        </StackPanel>
+
+        <ListBox x:Name="LBOrders" Grid.Row="1" Margin="5" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" MouseDoubleClick="LBOrders_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="5" Padding="10" BorderThickness="1" BorderBrush="LightGray" Background="White">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding Id, StringFormat='Заказ №{0}'}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="{Binding OrderDate, StringFormat='Дата: {0:dd.MM.yyyy HH:mm}'}" FontSize="12" Foreground="Gray" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding StatusName, StringFormat='Статус: {0}'}" FontSize="14" Foreground="Blue" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding TotalSum, StringFormat={}{0} ₽}" FontSize="16" FontWeight="Bold" Foreground="Green"/>
+                                <TextBlock Text="Подробнее" FontSize="12" Foreground="Gray" HorizontalAlignment="Right" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>
