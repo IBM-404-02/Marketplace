@@ -113,5 +113,14 @@ namespace MarketplaceSWAGAwpf
                 MainFrame.Navigate(new CataloguePage());
             }
         }
+
+        private void BTNBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainFrame != null && MainFrame.CanGoBack)
+            {
+               MainFrame.GoBack();
+            }
+        }
+
     }
 }

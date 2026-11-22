@@ -26,6 +26,8 @@
             <Button x:Name="BTNaccount" ToolTip="Личный кабинет или вход" Content="Аккаунт" Click="BTNaccount_Click" Margin="0, 10" Width="160"/>
             <Button x:Name="BTNadmin" ToolTip="Администрирование" Content="Админка" Click="BTNadmin_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
             <Button x:Name="BTNLogout" ToolTip="Выйти из аккаунта" Content="Выйти" Click="BTNLogout_Click" Margin="0, 10" Width="160" Visibility="Collapsed"/>
+
+            <Button x:Name="BTNBack" ToolTip="Вернуться на предыдущую страницу" Content="Назад" Click="BTNBack_Click" Margin="0, 10" Width="160"/>
         </StackPanel>
     </Grid>
 </Window>

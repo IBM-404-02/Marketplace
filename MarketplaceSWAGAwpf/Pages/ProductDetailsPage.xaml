@@ -8,7 +8,75 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ProductDetailsPage">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="LightGray" CornerRadius="5" Margin="0,0,20,0">
+                <Image x:Name="ImgProduct" Source="{Binding ImagePath}" Stretch="Uniform" Height="300"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                <TextBlock x:Name="TBName" FontSize="22" FontWeight="Bold" TextWrapping="Wrap"/>
+                <TextBlock x:Name="TBPrice" FontSize="20" Foreground="Green" FontWeight="Bold" Margin="0,10"/>
+                <TextBlock x:Name="TBCategory" FontSize="14" Foreground="Gray" Margin="0,5"/>
+                <TextBlock x:Name="TBStock" FontSize="14" Margin="0,5"/>
+                <TextBlock x:Name="TBPack" FontSize="14" Margin="0,5"/>
+                <TextBlock x:Name="TBRating" FontSize="14" Margin="0,5"/>
+                <TextBlock Text="Описание:" FontWeight="Bold" Margin="0,15,0,5"/>
+                <TextBlock x:Name="TBDescription" TextWrapping="Wrap" FontSize="14"/>
+
+                <StackPanel x:Name="PanelActions" Orientation="Horizontal" Margin="0,20,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Количество:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="TBQuantity" Width="60" Height="30" Text="1" Margin="0,0,10,0"/>
+                    <Button x:Name="BTNToCart" Content="В корзину" Height="35" Padding="15,5" Margin="0,0,10,0" Click="BTNToCart_Click"/>
+                    <Button x:Name="BTNToFavorites" Content="В избранное" Height="35" Padding="15,5" Click="BTNToFavorites_Click"/>
+                </StackPanel>
+
+                <Button x:Name="BTNToCartPage" Content="Перейти в корзину" Height="35" Padding="15,5" Margin="0,10,0,0" Visibility="Collapsed" Click="BTNToCartPage_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Height="1" Background="LightGray" Margin="0,20"/>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="Отзывы:" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+            <ListBox x:Name="LBReviews" MaxHeight="400" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,5" Padding="10" BorderThickness="1" BorderBrush="LightGray" CornerRadius="5">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Users.Login}" FontWeight="Bold"/>
+                                    <TextBlock Text=" — " Margin="5,0"/>
+                                    <TextBlock Text="{Binding Rating, StringFormat='Оценка: {0}/5'}" Foreground="Orange"/>
+                                    <TextBlock Text="{Binding CreatedAt, StringFormat=' ({0:dd.MM.yyyy HH:mm})'}" Foreground="Gray" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel x:Name="PanelAddReview" Margin="0,15,0,0" Visibility="Collapsed">
+                <TextBlock Text="Оставить отзыв:" FontWeight="Bold" Margin="0,0,0,5"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Оценка (1-5):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="TBRatingAdd" Width="50" Height="30"/>
+                </StackPanel>
+                <TextBox x:Name="TBReviewText" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10" VerticalScrollBarVisibility="Auto"/>
+                <Button x:Name="BTNAddReview" Content="Отправить отзыв" Height="35" Padding="15,5" Click="BTNAddReview_Click"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Page>

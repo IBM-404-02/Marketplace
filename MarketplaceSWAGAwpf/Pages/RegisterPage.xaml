@@ -33,7 +33,6 @@
 
         <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
             <Button x:Name="regButton" Content="Создать аккаунт" Margin="0,0,10,0" Padding="15,5" Click="regButton_Click"/>
-            <Button x:Name="ButtonBack" Content="Назад" Padding="15,5" Click="ButtonBack_Click"/>
         </StackPanel>
     </Grid>
 </Page>

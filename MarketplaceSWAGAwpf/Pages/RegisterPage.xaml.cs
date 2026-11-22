@@ -124,10 +124,5 @@ namespace MarketplaceSWAGAwpf.Pages
                 MessageBox.Show($"Ошибка при сохранении в базу данных: {ex.Message}");
             }
         }
-
-        private void ButtonBack_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService?.GoBack();
-        }
     }
 }
