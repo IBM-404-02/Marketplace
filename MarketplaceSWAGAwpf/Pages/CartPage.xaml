@@ -31,7 +31,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" Background="LightGray" CornerRadius="5">
-                                <Image Source="{Binding Products.ImagePath}" Stretch="UniformToFill"/>
+                                <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
                             </Border>
 
                             <Grid Grid.Column="1" Margin="10,0,0,0">
@@ -42,8 +42,8 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Text="{Binding Products.Name}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"/>
-                                <TextBlock Grid.Row="1" Text="{Binding Products.Price, StringFormat={}{0} ₽}" FontSize="16" Foreground="Green" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="0" Text="{Binding ProductName}" FontWeight="Bold" FontSize="14" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="1" Text="{Binding Price, StringFormat={}{0} ₽}" FontSize="16" Foreground="Green" FontWeight="Bold"/>
 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Button Content="-" Width="30" Height="30" Tag="{Binding Id}" Click="BtnDec_Click"/>

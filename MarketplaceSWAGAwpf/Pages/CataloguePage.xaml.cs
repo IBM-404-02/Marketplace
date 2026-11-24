@@ -37,25 +37,22 @@ namespace MarketplaceSWAGAwpf.Pages
 
         private async void LoadProducts()
         {
-
             int? catId = null;
             if (CBFilter.SelectedItem is CategoryDto sel && sel.Id > 0)
-            {
                 catId = sel.Id;
-            }
 
             decimal? min = null, max = null;
             if (decimal.TryParse(TBMinPrice.Text.Replace(',', '.'), out decimal mn))
-            {
                 min = mn;
-            }
             if (decimal.TryParse(TBMaxPrice.Text.Replace(',', '.'), out decimal mx))
-            {
                 max = mx;
-            }
 
+            _allProducts = await Core.GetProductsAsync(
+                TBSearch.Text.Trim(), catId, min, max);
+            LBCatalogue.ItemsSource = _allProducts;
 
             ApplySort();
+
         }
 
         private void ApplySort()
