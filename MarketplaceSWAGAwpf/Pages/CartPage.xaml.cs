@@ -1,103 +1,86 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MarketplaceSWAGAwpf.Models;
+using MarketplaceSWAGAwpf.Pages;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для CartPage.xaml
-    /// </summary>
     public partial class CartPage : Page
     {
         decimal total = 0;
+
         public CartPage()
         {
             InitializeComponent();
             LoadCart();
         }
 
-        private void LoadCart()
+        private async void LoadCart()
         {
-            var cartItems = Core.Context.CartItems
-                .Where(c => c.UserId == Core.CurrentUser.Id)
-                .ToList();
+            var cart = await Core.GetCartAsync();
+            if (cart != null)
+            {
+                LBCart.ItemsSource = cart.Items;
+                total = cart.Total;
+                TBTotal.Text = $"Итого: {total:N2} ₽";
+            }
 
-            LBCart.ItemsSource = cartItems;
-
-            total = cartItems.Sum(c => c.Products.Price * c.Quantity);
-            TBTotal.Text = $"Итого: {total:N2} ₽";
         }
 
-        private void BtnDec_Click(object sender, RoutedEventArgs e)
+        private async void BtnDec_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int itemId)
             {
-                var item = Core.Context.CartItems.FirstOrDefault(c => c.Id == itemId);
+                var item = LBCart.ItemsSource.Cast<CartItemDto>().FirstOrDefault(c => c.Id == itemId);
                 if (item != null && item.Quantity > 1)
                 {
-                    item.Quantity--;
-                    Core.Context.SaveChanges();
+
+                    await Core.UpdateCartItemAsync(itemId, item.Quantity - 1);
                     LoadCart();
+
                 }
-                else if (item.Quantity == 1)
+                else if (item != null && item.Quantity == 1)
                 {
                     var result = MessageBox.Show("Удалить товар из корзины?", "Подтверждение", MessageBoxButton.YesNo);
                     if (result == MessageBoxResult.Yes)
                     {
-                        Core.Context.CartItems.Remove(item);
-                        Core.Context.SaveChanges();
+
+                        await Core.RemoveFromCartAsync(itemId);
                         LoadCart();
+
                     }
                 }
             }
         }
 
-        private void BtnInc_Click(object sender, RoutedEventArgs e)
+        private async void BtnInc_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int itemId)
             {
-                var item = Core.Context.CartItems.FirstOrDefault(c => c.Id == itemId);
+                var item = LBCart.ItemsSource.Cast<CartItemDto>().FirstOrDefault(c => c.Id == itemId);
                 if (item != null)
                 {
-                    if (item.Products.StockQuantity > item.Quantity)
-                    {
-                        item.Quantity++;
-                        Core.Context.SaveChanges();
-                        LoadCart();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Нельзя добавить больше, чем есть в наличии!");
-                    }
+
+                    await Core.UpdateCartItemAsync(itemId, item.Quantity + 1);
+                    LoadCart();
+
                 }
             }
         }
 
-        private void BtnRemove_Click(object sender, RoutedEventArgs e)
+        private async void BtnRemove_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int itemId)
             {
                 var result = MessageBox.Show("Удалить товар из корзины?", "Подтверждение", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    var item = Core.Context.CartItems.FirstOrDefault(c => c.Id == itemId);
-                    if (item != null)
-                    {
-                        Core.Context.CartItems.Remove(item);
-                        Core.Context.SaveChanges();
-                        LoadCart();
-                    }
+
+                    await Core.RemoveFromCartAsync(itemId);
+                    LoadCart();
+
                 }
             }
         }
@@ -109,28 +92,27 @@ namespace MarketplaceSWAGAwpf.Pages
                 MessageBox.Show("Корзина пуста!");
                 return;
             }
-
             NavigationService?.Navigate(new CheckoutPage(total));
         }
 
-        private void BTNClear_Click(object sender, RoutedEventArgs e)
+        private async void BTNClear_Click(object sender, RoutedEventArgs e)
         {
             if (LBCart.Items.Count == 0)
             {
                 MessageBox.Show("Корзина уже пуста!");
                 return;
             }
-
             var result = MessageBox.Show("Очистить всю корзину?", "Подтверждение", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                var cartItems = Core.Context.CartItems
-                    .Where(c => c.UserId == Core.CurrentUser.Id)
-                    .ToList();
 
-                Core.Context.CartItems.RemoveRange(cartItems);
-                Core.Context.SaveChanges();
+                var items = LBCart.ItemsSource.Cast<CartItemDto>().ToList();
+                foreach (var item in items)
+                {
+                    await Core.RemoveFromCartAsync(item.Id);
+                }
                 LoadCart();
+
             }
         }
     }

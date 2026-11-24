@@ -1,26 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MarketplaceSWAGAwpf.Models;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для ProductDetailsPage.xaml
-    /// </summary>
     public partial class ProductDetailsPage : Page
     {
-        private Products _product;
+        private ProductDetailsDto _product;
+        private List<ReviewDto> _reviews;
 
         public ProductDetailsPage(int productId)
         {
@@ -28,11 +18,9 @@ namespace MarketplaceSWAGAwpf.Pages
             LoadProduct(productId);
         }
 
-        private void LoadProduct(int productId)
+        private async void LoadProduct(int productId)
         {
-            _product = Core.Context.Products
-                .FirstOrDefault(p => p.Id == productId);
-
+            _product = await Core.GetProductAsync(productId);
             if (_product == null)
             {
                 MessageBox.Show("Товар не найден!");
@@ -41,51 +29,17 @@ namespace MarketplaceSWAGAwpf.Pages
 
             TBName.Text = _product.Name;
             TBPrice.Text = $"{_product.Price:N2} ₽";
-
-            var category = _product.ProductCategories.FirstOrDefault()?.Categories;
-            TBCategory.Text = category != null ? $"Категория: {category.Name}" : "Категория не указана";
-
-            if (!_product.IsAvailable)
-            {
-                TBStock.Text = "Товар недоступен для покупки";
-                TBStock.Foreground = System.Windows.Media.Brushes.Red;
-            }
-            else if (_product.StockQuantity == 0)
-            {
-                TBStock.Text = "Нет в наличии";
-                TBStock.Foreground = System.Windows.Media.Brushes.Red;
-            }
-            else
-            {
-                TBStock.Text = $"В наличии: {_product.StockQuantity} шт.";
-                TBStock.Foreground = System.Windows.Media.Brushes.Green;
-            }
-
-            if (_product.PackQuantity.HasValue)
-            {
-                TBPack.Text = $"В упаковке: {_product.PackQuantity.Value} шт.";
-            }
-            else
-            {
-                TBPack.Text = "";
-            }
-
-            var reviews = _product.Reviews.ToList();
-            if (reviews.Count > 0)
-            {
-                double avg = reviews.Average(r => r.Rating);
-                TBRating.Text = $"Рейтинг: {avg:0.0} ({reviews.Count} отзывов)";
-            }
-            else
-            {
-                TBRating.Text = "Рейтинг: нет оценок";
-            }
-
+            TBCategory.Text = $"Категория: {_product.CategoriesText}";
+            TBStock.Text = _product.StockText;
+            TBStock.Foreground = _product.CanBuy ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.Red;
+            TBPack.Text = _product.PackText;
+            TBRating.Text = _product.RatingText;
             TBDescription.Text = string.IsNullOrWhiteSpace(_product.Description) ? "Описание отсутствует" : _product.Description;
 
             ImgProduct.DataContext = _product;
 
-            LBReviews.ItemsSource = reviews.OrderByDescending(r => r.CreatedAt).ToList();
+            _reviews = await Core.GetReviewsAsync(productId);
+            LBReviews.ItemsSource = _reviews.OrderByDescending(r => r.CreatedAt).ToList();
 
             if (Core.CurrentUser != null)
             {
@@ -93,23 +47,16 @@ namespace MarketplaceSWAGAwpf.Pages
                 PanelAddReview.Visibility = Visibility.Visible;
                 BTNToCartPage.Visibility = Visibility.Visible;
 
-                bool hasReview = reviews.Any(r => r.UserId == Core.CurrentUser.Id);
+                bool hasReview = _reviews.Any(r => r.UserLogin == Core.CurrentUser.Login);
                 if (hasReview)
                 {
                     BTNAddReview.IsEnabled = false;
                     BTNAddReview.Content = "Вы уже оставили отзыв";
                 }
 
-                bool inFavorites = Core.Context.Favorites
-                    .Any(f => f.UserId == Core.CurrentUser.Id && f.ProductId == _product.Id);
-                if (inFavorites)
-                {
-                    BTNToFavorites.Content = "Удалить из избранного";
-                }
-                else
-                {
-                    BTNToFavorites.Content = "В избранное";
-                }
+                var favorites = await Core.GetFavoritesAsync();
+                bool inFavorites = favorites.Any(f => f.ProductId == _product.Id);
+                BTNToFavorites.Content = inFavorites ? "Удалить из избранного" : "В избранное";
             }
             else
             {
@@ -119,7 +66,7 @@ namespace MarketplaceSWAGAwpf.Pages
             }
         }
 
-        private void BTNToCart_Click(object sender, RoutedEventArgs e)
+        private async void BTNToCart_Click(object sender, RoutedEventArgs e)
         {
             if (!int.TryParse(TBQuantity.Text, out int quantity) || quantity <= 0)
             {
@@ -127,79 +74,42 @@ namespace MarketplaceSWAGAwpf.Pages
                 return;
             }
 
-            if (!_product.IsAvailable || _product.StockQuantity == 0)
+            if (!_product.CanBuy)
             {
                 MessageBox.Show("Товар недоступен для покупки!");
                 return;
             }
 
-            try
-            {
-                var existingItem = Core.Context.CartItems
-                    .FirstOrDefault(c => c.UserId == Core.CurrentUser.Id && c.ProductId == _product.Id);
-
-                if (existingItem != null)
-                {
-                    existingItem.Quantity += quantity;
-                }
-                else
-                {
-                    Core.Context.CartItems.Add(new CartItems
-                    {
-                        UserId = Core.CurrentUser.Id,
-                        ProductId = _product.Id,
-                        Quantity = quantity
-                    });
-                }
-
-                Core.Context.SaveChanges();
-                MessageBox.Show($"Товар добавлен в корзину (количество: {quantity})!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}");
-            }
+            await Core.AddToCartAsync(_product.Id, quantity);
+            MessageBox.Show($"Товар добавлен в корзину (количество: {quantity})!");
         }
 
-        private void BTNToFavorites_Click(object sender, RoutedEventArgs e)
+        private async void BTNToFavorites_Click(object sender, RoutedEventArgs e)
         {
-            var favorite = Core.Context.Favorites
-                .FirstOrDefault(f => f.UserId == Core.CurrentUser.Id && f.ProductId == _product.Id);
+            var favorites = await Core.GetFavoritesAsync();
+            var favorite = favorites.FirstOrDefault(f => f.ProductId == _product.Id);
 
             if (favorite != null)
             {
-                Core.Context.Favorites.Remove(favorite);
-                Core.Context.SaveChanges();
+                await Core.RemoveFromFavoritesAsync(favorite.Id);
                 MessageBox.Show("Товар удалён из избранного!");
-
                 BTNToFavorites.Content = "В избранное";
-                BTNToFavorites.IsEnabled = true;
             }
             else
             {
-                Core.Context.Favorites.Add(new Favorites
-                {
-                    UserId = Core.CurrentUser.Id,
-                    ProductId = _product.Id
-                });
-
-                Core.Context.SaveChanges();
+                await Core.AddToFavoritesAsync(_product.Id);
                 MessageBox.Show("Товар добавлен в избранное!");
-
                 BTNToFavorites.Content = "Удалить из избранного";
-                BTNToFavorites.IsEnabled = true;
             }
         }
 
-
-        private void BTNAddReview_Click(object sender, RoutedEventArgs e)
+        private async void BTNAddReview_Click(object sender, RoutedEventArgs e)
         {
             if (!int.TryParse(TBRatingAdd.Text, out int rating) || rating < 1 || rating > 5)
             {
                 MessageBox.Show("Введите оценку от 1 до 5!");
                 return;
             }
-
             string text = TBReviewText.Text.Trim();
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -207,20 +117,10 @@ namespace MarketplaceSWAGAwpf.Pages
                 return;
             }
 
-            Core.Context.Reviews.Add(new Reviews
-            {
-                UserId = Core.CurrentUser.Id,
-                ProductId = _product.Id,
-                Rating = (byte)rating,
-                Text = text
-            });
-
-            Core.Context.SaveChanges();
+            await Core.AddReviewAsync(_product.Id, rating, text);
             MessageBox.Show("Отзыв добавлен!");
-
             BTNAddReview.IsEnabled = false;
             BTNAddReview.Content = "Вы уже оставили отзыв";
-
             LoadProduct(_product.Id);
         }
 
@@ -237,13 +137,12 @@ namespace MarketplaceSWAGAwpf.Pages
                 return;
             }
 
-            if (!_product.IsAvailable || _product.StockQuantity == 0)
+            if (!_product.CanBuy)
             {
                 MessageBox.Show("Товар недоступен для покупки!");
                 return;
             }
-
-            NavigationService?.Navigate(new CheckoutPage(quantity*_product.Price, _product.Id, quantity));
+            NavigationService?.Navigate(new CheckoutPage(quantity * _product.Price, _product.Id, quantity));
         }
     }
 }

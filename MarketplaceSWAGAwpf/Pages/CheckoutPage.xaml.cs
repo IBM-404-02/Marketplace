@@ -1,28 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MarketplaceSWAGAwpf.Models;
+using MarketplaceSWAGAwpf.Pages;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для CheckoutPage.xaml
-    /// </summary>
     public partial class CheckoutPage : Page
     {
-
         private decimal _total;
         private int? _singleProductId;
         private int _singleQuantity;
@@ -47,17 +33,14 @@ namespace MarketplaceSWAGAwpf.Pages
         private void Load()
         {
             TBTotal.Text = $"Итого к оплате: {_total:N2} ₽";
-
             var activePickupPoints = Lists.PickupPoints.Where(p => p.IsActive).ToList();
             CBPickupPoint.ItemsSource = activePickupPoints;
             CBPickupPoint.DisplayMemberPath = "Address";
             CBPickupPoint.SelectedValuePath = "Id";
-
             if (activePickupPoints.Count > 0)
             {
                 CBPickupPoint.SelectedIndex = 0;
             }
-
             if (_total < 600)
             {
                 RBDelivery.IsEnabled = false;
@@ -90,10 +73,9 @@ namespace MarketplaceSWAGAwpf.Pages
             }
         }
 
-        private void BTNCheckout_Click(object sender, RoutedEventArgs e)
+        private async void BTNCheckout_Click(object sender, RoutedEventArgs e)
         {
             TBError.Text = "";
-
             int deliveryMethodId;
             int? pickupPointId = null;
             string deliveryAddress = null;
@@ -129,65 +111,20 @@ namespace MarketplaceSWAGAwpf.Pages
                 return;
             }
 
-                Orders newOrder = new Orders
-                {
-                    UserId = Core.CurrentUser.Id,
-                    OrderDate = DateTime.Now,
-                    DeliveryMethodId = deliveryMethodId,
-                    PickupPointId = pickupPointId,
-                    DeliveryAddress = deliveryAddress,
-                    StatusId = 1
-                };
 
-                Core.Context.Orders.Add(newOrder);
-                Core.Context.SaveChanges();
+            var result = await Core.CreateOrderAsync(
+                deliveryMethodId,
+                pickupPointId,
+                deliveryAddress,
+                _singleProductId,
+                _singleProductId.HasValue ? _singleQuantity : (int?)null
+            );
 
-            if (_singleProductId.HasValue)
+            if (result != null)
             {
-                var product = Core.Context.Products.FirstOrDefault(p => p.Id == _singleProductId.Value);
-                if (product != null)
-                {
-                    Core.Context.OrderItems.Add(new OrderItems
-                    {
-                        OrderId = newOrder.Id,
-                        ProductId = product.Id,
-                        Quantity = _singleQuantity,
-                        PriceAtPurchase = product.Price
-                    });
-
-                    product.StockQuantity -= _singleQuantity;
-                    if (product.StockQuantity < 0) product.StockQuantity = 0;
-                }
-            }
-            else
-            {
-                var cartItems = Core.Context.CartItems.Where(c => c.UserId == Core.CurrentUser.Id).ToList();
-
-                foreach (var cartItem in cartItems)
-                {
-                    Core.Context.OrderItems.Add(new OrderItems
-                    {
-                        OrderId = newOrder.Id,
-                        ProductId = cartItem.ProductId,
-                        Quantity = cartItem.Quantity,
-                        PriceAtPurchase = cartItem.Products.Price
-                    });
-
-                    var product = Core.Context.Products.FirstOrDefault(p => p.Id == cartItem.ProductId);
-                    if (product != null)
-                    {
-                        product.StockQuantity -= cartItem.Quantity;
-                        if (product.StockQuantity < 0) product.StockQuantity = 0;
-                    }
-                }
-
-                Core.Context.CartItems.RemoveRange(cartItems);
-            }
-
-            Core.Context.SaveChanges();
-
-            MessageBox.Show($"Заказ №{newOrder.Id} успешно оформлен!\nСумма: {_total:N2} ₽");
+                MessageBox.Show($"Заказ №{result.Id} успешно оформлен!\nСумма: {result.Total:N2} ₽");
                 NavigationService?.Navigate(new OrdersPage());
+            }
         }
     }
 }

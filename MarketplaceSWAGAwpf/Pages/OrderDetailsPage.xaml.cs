@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MarketplaceSWAGAwpf.Models;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
@@ -29,45 +20,39 @@ namespace MarketplaceSWAGAwpf.Pages
             LoadOrder();
         }
 
-        private void LoadOrder()
+        private async void LoadOrder()
         {
-            var order = Lists.Orders.FirstOrDefault(o => o.Id == _orderId);
+            var order = await Core.GetOrderAsync(_orderId);
             if (order == null)
             {
                 MessageBox.Show("Заказ не найден!");
                 return;
             }
 
-            var status = Lists.OrderStatuses.FirstOrDefault(s => s.Id == order.StatusId);
-            var pickupPoint = order.PickupPointId.HasValue ? Lists.PickupPoints.FirstOrDefault(p => p.Id == order.PickupPointId.Value) : null;
-
             TBTitle.Text = $"Заказ №{order.Id}";
             TBDate.Text = $"Дата оформления: {order.OrderDate:dd.MM.yyyy HH:mm}";
-            TBStatus.Text = $"Статус: {status?.Name ?? "Неизвестен"}";
+            TBStatus.Text = $"Статус: {order.Status}";
 
-            if (order.DeliveryMethodId == 1)
+            if (order.DeliveryMethod == "Самовывоз")
             {
-                TBDelivery.Text = $"Способ получения: Самовывоз из ПВЗ ({pickupPoint?.Address})";
+                TBDelivery.Text = $"Способ получения: Самовывоз из ПВЗ ({order.PickupPoint})";
             }
             else
             {
                 TBDelivery.Text = $"Способ получения: Доставка по адресу ({order.DeliveryAddress})";
             }
 
-            var orderItems = Lists.OrderItems.Where(oi => oi.OrderId == _orderId);
-
             var itemsToShow = new List<OrderItemView>();
             decimal total = 0;
 
-            foreach (var oi in orderItems)
+            foreach (var oi in order.Items)
             {
-                var product = Lists.Products.FirstOrDefault(p => p.Id == oi.ProductId);
                 decimal sum = oi.Quantity * oi.PriceAtPurchase;
                 total += sum;
 
                 itemsToShow.Add(new OrderItemView
                 {
-                    ProductName = product?.Name ?? "Товар удален",
+                    ProductName = oi.ProductName,
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
                     Sum = sum
@@ -78,6 +63,7 @@ namespace MarketplaceSWAGAwpf.Pages
             TBTotal.Text = $"Итого: {total:N2} ₽";
         }
     }
+
     public class OrderItemView
     {
         public string ProductName { get; set; }
