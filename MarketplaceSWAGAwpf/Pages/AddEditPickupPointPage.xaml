@@ -1,0 +1,31 @@
+﻿<Page x:Class="MarketplaceSWAGAwpf.Pages.AddEditPickupPointPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MarketplaceSWAGAwpf.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="AddEditPickupPointPage">
+
+    <Grid>
+        <StackPanel Margin="20" Width="400" HorizontalAlignment="Center">
+            <TextBlock x:Name="TitleText" Text="Добавить пункт выдачи" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+            <TextBlock Text="Адрес:"/>
+            <TextBox x:Name="AddressTextBox" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Часы работы (например, 9:00-21:00):"/>
+            <TextBox x:Name="WorkingHoursTextBox" Margin="0,0,0,10"/>
+
+            <CheckBox x:Name="IsActiveCheckBox" Content="Активен" IsChecked="True" Margin="0,0,0,20"/>
+
+            <TextBlock x:Name="ErrorText" Foreground="Red" Margin="0,0,0,10" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Сохранить" Width="120" Height="35" Margin="0,0,10,0" Click="Save_Click"/>
+                <Button Content="Отмена" Width="120" Height="35" Background="LightGray" Click="Cancel_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

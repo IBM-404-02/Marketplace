@@ -1,0 +1,28 @@
+﻿<Page x:Class="MarketplaceSWAGAwpf.AdminCategoriesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="AdminCategoriesPage"
+      Background="White">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Категории" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <DataGrid x:Name="CategoriesDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Добавить" Width="100" Height="30" Margin="0,0,10,0" Click="Add_Click"/>
+            <Button Content="Редактировать" Width="120" Height="30" Margin="0,0,10,0" Click="Edit_Click"/>
+            <Button Content="Удалить" Width="100" Height="30" Margin="0,0,10,0" Background="Red" Foreground="White" Click="Delete_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

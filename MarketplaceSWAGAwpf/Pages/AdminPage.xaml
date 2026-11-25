@@ -9,6 +9,12 @@
       Title="AdminPage">
 
     <Grid>
-        
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Панель администратора" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <Button Content="Управление товарами" Width="250" Height="40" Click="GoToProducts_Click"/>
+            <Button Content="Управление категориями" Width="250" Height="40" Click="GoToCategories_Click"/>
+            <Button Content="Управление ПВЗ" Width="250" Height="40" Click="GoToPickupPoints_Click"/>
+            <Button Content="Управление заказами" Width="250" Height="40" Click="GoToOrders_Click"/>
+        </StackPanel>
     </Grid>
 </Page>

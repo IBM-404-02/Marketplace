@@ -24,5 +24,25 @@ namespace MarketplaceSWAGAwpf.Pages
         {
             InitializeComponent();
         }
+
+        private void GoToProducts_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AdminProductsPage());
+        }
+
+        private void GoToCategories_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AdminCategoriesPage());
+        }
+
+        private void GoToPickupPoints_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AdminPickupPointsPage());
+        }
+
+        private void GoToOrders_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AdminOrdersPage());
+        }
     }
 }

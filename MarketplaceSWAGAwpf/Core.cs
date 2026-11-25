@@ -11,14 +11,10 @@ namespace MarketplaceSWAGAwpf
 {
     public static class Core
     {
-
         public static string ApiUrl = "http://localhost:5299/api";
-
         private static readonly HttpClient _client = new HttpClient();
-
         public static MeDto? CurrentUser { get; private set; }
         public static string? Token { get; private set; }
-
         public static bool IsAuthorized => CurrentUser != null;
         public static bool IsAdmin => CurrentUser?.Role == "Admin";
 
@@ -85,13 +81,13 @@ namespace MarketplaceSWAGAwpf
             response.EnsureSuccessStatusCode();
         }
 
+        // Авторизация
         public static async Task<bool> LoginAsync(string login, string password)
         {
             try
             {
                 var result = await PostAsync<LoginResponse>("/auth/login",
                     new { login, password });
-
                 if (result != null && !string.IsNullOrEmpty(result.AccessToken))
                 {
                     SetToken(result.AccessToken);
@@ -125,6 +121,7 @@ namespace MarketplaceSWAGAwpf
             ClearAuth();
         }
 
+        // Товары
         public static async Task<List<ProductDto>> GetProductsAsync(
             string? search = null, int? categoryId = null,
             decimal? minPrice = null, decimal? maxPrice = null)
@@ -138,7 +135,6 @@ namespace MarketplaceSWAGAwpf
                 query.Add($"minPrice={minPrice.Value}");
             if (maxPrice.HasValue)
                 query.Add($"maxPrice={maxPrice.Value}");
-
             var url = "/products" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
             return await GetAsync<List<ProductDto>>(url) ?? new List<ProductDto>();
         }
@@ -148,6 +144,7 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<ProductDetailsDto>($"/products/{id}");
         }
 
+        // Корзина
         public static async Task<CartDto?> GetCartAsync()
         {
             return await GetAsync<CartDto>("/cart");
@@ -168,6 +165,7 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/cart/{itemId}");
         }
 
+        // Избранное
         public static async Task<List<FavoriteDto>> GetFavoritesAsync()
         {
             return await GetAsync<List<FavoriteDto>>("/favorites") ?? new List<FavoriteDto>();
@@ -183,6 +181,7 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/favorites/{favoriteId}");
         }
 
+        // Заказы
         public static async Task<OrderCreatedDto?> CreateOrderAsync(
             int deliveryMethodId, int? pickupPointId = null, string? address = null,
             int? productId = null, int? quantity = null)
@@ -205,11 +204,7 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<OrderDetailsDto>($"/orders/{id}");
         }
 
-        public static async Task UpdateOrderStatusAsync(int orderId, int statusId)
-        {
-            await PutAsync<object>("/orders", new { id = orderId, statusId });
-        }
-
+        // Отзывы
         public static async Task<List<ReviewDto>> GetReviewsAsync(int productId)
         {
             return await GetAsync<List<ReviewDto>>($"/reviews?productId={productId}") ?? new List<ReviewDto>();
@@ -225,6 +220,7 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/reviews/{reviewId}");
         }
 
+        // Справочники
         public static async Task<List<CategoryDto>> GetCategoriesAsync()
         {
             return await GetAsync<List<CategoryDto>>("/categories") ?? new List<CategoryDto>();
@@ -246,34 +242,96 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<List<StatusDto>>("/order-statuses") ?? new List<StatusDto>();
         }
 
-        public static async Task AddProductAsync(object product)
+        // Админ: товары
+        // POST /api/products — создание товара
+        // Сервер ждёт ProductRequest: Id, Name, Description, Price, ImagePath, StockQuantity, PackQuantity, IsAvailable, CategoryIds
+        public static async Task AdminAddProductAsync(
+            string name, string? description, decimal price, string? imagePath,
+            int stockQuantity, int? packQuantity, bool isAvailable, List<int> categoryIds)
         {
-            await PostAsync<object>("/products", product);
+            await PostAsync<object>("/products", new
+            {
+                id = 0,
+                name,
+                description,
+                price,
+                imagePath,
+                stockQuantity,
+                packQuantity,
+                isAvailable,
+                categoryIds
+            });
         }
 
-        public static async Task UpdateProductAsync(object product)
+        // PUT /api/products — обновление товара (id в теле, не в URL)
+        public static async Task AdminUpdateProductAsync(
+            int id, string name, string? description, decimal price, string? imagePath,
+            int stockQuantity, int? packQuantity, bool isAvailable, List<int> categoryIds)
         {
-            await PutAsync<object>("/products", product);
+            await PutAsync<object>("/products", new
+            {
+                id,
+                name,
+                description,
+                price,
+                imagePath,
+                stockQuantity,
+                packQuantity,
+                isAvailable,
+                categoryIds
+            });
         }
 
-        public static async Task AddCategoryAsync(string name)
+        public static async Task AdminDeleteProductAsync(int id)
         {
-            await PostAsync<CategoryDto>("/categories", new { name });
+            await DeleteAsync($"/products/{id}");
         }
 
-        public static async Task UpdateCategoryAsync(int id, string name)
+        public static async Task AdminAddCategoryAsync(string name)
+        {
+            await PostAsync<CategoryDto>("/categories", new { id = 0, name });
+        }
+
+        public static async Task AdminUpdateCategoryAsync(int id, string name)
         {
             await PutAsync<CategoryDto>("/categories", new { id, name });
         }
 
-        public static async Task AddPickupPointAsync(object point)
+        public static async Task AdminDeleteCategoryAsync(int id)
         {
-            await PostAsync<PickupPointDto>("/pickup-points", point);
+            await DeleteAsync($"/categories/{id}");
         }
 
-        public static async Task UpdatePickupPointAsync(object point)
+        public static async Task UpdateOrderStatusAsync(int orderId, int statusId)
         {
-            await PutAsync<PickupPointDto>("/pickup-points", point);
+            await PutAsync<object>("/orders", new { id = orderId, statusId });
+        }
+
+        public static async Task<List<PickupPointDto>> AdminGetPickupPointsAsync()
+        {
+            return await GetAsync<List<PickupPointDto>>("/pickup-points?all=true") ?? new List<PickupPointDto>();
+        }
+
+        public static async Task AdminAddPickupPointAsync(string address, string? workingHours)
+        {
+            await PostAsync<object>("/pickup-points", new
+            {
+                id = 0,
+                address,
+                workingHours,
+                isActive = true
+            });
+        }
+
+        public static async Task AdminUpdatePickupPointAsync(int id, string address, string? workingHours, bool isActive)
+        {
+            await PutAsync<object>("/pickup-points", new
+            {
+                id,
+                address,
+                workingHours,
+                isActive
+            });
         }
     }
 }

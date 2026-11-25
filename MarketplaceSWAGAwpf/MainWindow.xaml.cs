@@ -110,6 +110,10 @@ namespace MarketplaceSWAGAwpf
             {
                 Core.Logout();
                 UpdateMenuVisibility();
+                while (MainFrame.CanGoBack)
+                {
+                    MainFrame.NavigationService.RemoveBackEntry();
+                }
                 MainFrame.Navigate(new CataloguePage());
             }
         }
