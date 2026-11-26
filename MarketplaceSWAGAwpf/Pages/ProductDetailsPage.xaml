@@ -51,7 +51,7 @@
 
         <StackPanel Grid.Row="2">
             <TextBlock Text="Отзывы:" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
-            <ListBox x:Name="LBReviews" MaxHeight="400" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox x:Name="LBReviews" Height="80" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,5" Padding="10" BorderThickness="1" BorderBrush="LightGray" CornerRadius="5">

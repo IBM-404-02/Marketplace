@@ -52,22 +52,5 @@ namespace MarketplaceSWAGAwpf.Pages
                 MessageBox.Show("Выберите товар для редактирования");
             }
         }
-
-        private async void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            if (ProductsDataGrid.SelectedItem is ProductDto product)
-            {
-                var result = MessageBox.Show($"Удалить товар '{product.Name}'?", "Подтверждение", MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.Yes)
-                {
-                    await Core.AdminDeleteProductAsync(product.Id);
-                    LoadData();
-                }
-            }
-            else
-            {
-                MessageBox.Show("Выберите товар для удаления");
-            }
-        }
     }
 }

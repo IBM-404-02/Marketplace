@@ -119,6 +119,8 @@ namespace MarketplaceSWAGAwpf.Pages
 
             await Core.AddReviewAsync(_product.Id, rating, text);
             MessageBox.Show("Отзыв добавлен!");
+            TBReviewText.Text = "";
+            TBRatingAdd.Text = "";
             BTNAddReview.IsEnabled = false;
             BTNAddReview.Content = "Вы уже оставили отзыв";
             LoadProduct(_product.Id);

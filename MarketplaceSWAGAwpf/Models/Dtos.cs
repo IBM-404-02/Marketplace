@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace MarketplaceSWAGAwpf.Models;
 
+//Классы для перевода данных из json в cs. Они точно повторяют структуру jsonов
 public class LoginResponse
 {
     [JsonPropertyName("access_token")]
@@ -32,13 +33,6 @@ public class CategoryDto
     public string Name { get; set; } = "";
 }
 
-public class CategoryCheck
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-    public bool IsChecked { get; set; }
-}
-
 public class ProductDto
 {
     public int Id { get; set; }
@@ -54,15 +48,9 @@ public class ProductDto
 
     public string CategoriesText => string.Join(", ", Categories);
 
-    public string RatingText => Rating == null
-        ? "Нет оценок"
-        : $"★ {Rating:0.0} ({ReviewsCount} отз.)";
+    public string RatingText => Rating == null ? "Нет оценок" : $"★ {Rating:0.0} ({ReviewsCount} отз.)";
 
-    public string StockText => !IsAvailable
-        ? "Недоступен для покупки"
-        : StockQuantity == 0
-            ? "Нет в наличии"
-            : $"В наличии: {StockQuantity} шт.";
+    public string StockText => !IsAvailable ? "Недоступен для покупки" : StockQuantity == 0 ? "Нет в наличии" : $"В наличии: {StockQuantity} шт.";
 }
 
 public class ProductDetailsDto
@@ -82,19 +70,11 @@ public class ProductDetailsDto
 
     public string CategoriesText => string.Join(", ", Categories.Select(c => c.Name));
 
-    public string RatingText => Rating == null
-        ? "Нет оценок"
-        : $"★ {Rating:0.0} ({ReviewsCount} отз.)";
+    public string RatingText => Rating == null ? "Нет оценок" : $"★ {Rating:0.0} ({ReviewsCount} отз.)";
 
-    public string StockText => !IsAvailable
-        ? "Недоступен для покупки"
-        : StockQuantity == 0
-            ? "Нет в наличии"
-            : $"В наличии: {StockQuantity} шт.";
+    public string StockText => !IsAvailable ? "Недоступен для покупки" : StockQuantity == 0 ? "Нет в наличии" : $"В наличии: {StockQuantity} шт.";
 
-    public string PackText => PackQuantity == null
-        ? ""
-        : $"В упаковке: {PackQuantity} шт.";
+    public string PackText => PackQuantity == null ? "" : $"В упаковке: {PackQuantity} шт.";
 }
 
 public class ReviewDto
@@ -151,9 +131,7 @@ public class PickupPointDto
     public string? WorkingHours { get; set; }
     public bool IsActive { get; set; }
 
-    public string Display => string.IsNullOrWhiteSpace(WorkingHours)
-        ? Address
-        : $"{Address} ({WorkingHours})";
+    public string Display => string.IsNullOrWhiteSpace(WorkingHours) ? Address : $"{Address} ({WorkingHours})";
 
     public string AdminDisplay => IsActive ? Display : $"{Display} — выключен";
 }
@@ -200,9 +178,7 @@ public class OrderDetailsDto
     public string CustomerText => $"Покупатель: {UserLogin}";
     public string StatusText => $"Статус: {Status}";
 
-    public string DeliveryText => PickupPoint != null
-        ? $"{DeliveryMethod}: {PickupPoint}"
-        : $"{DeliveryMethod}: {DeliveryAddress}";
+    public string DeliveryText => PickupPoint != null ? $"{DeliveryMethod}: {PickupPoint}" : $"{DeliveryMethod}: {DeliveryAddress}";
 
     public string TotalText => $"Итого: {Total:N2} ₽";
 }

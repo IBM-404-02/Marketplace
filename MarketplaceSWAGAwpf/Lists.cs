@@ -9,6 +9,7 @@ namespace MarketplaceSWAGAwpf
 {
     public static class Lists
     {
+        //справочники и загрузка данных
         public static List<CategoryDto> Categories { get; private set; } = new();
         public static List<PickupPointDto> PickupPoints { get; private set; } = new();
         public static List<DeliveryMethodDto> DeliveryMethods { get; private set; } = new();

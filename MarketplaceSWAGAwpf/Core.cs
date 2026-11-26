@@ -9,36 +9,38 @@ using MarketplaceSWAGAwpf.Models;
 
 namespace MarketplaceSWAGAwpf
 {
+    //класс для хранения общего HttpClient для запросов. Плюсом хранит текущего пользователя и некоторые "стандартные" функции
     public static class Core
     {
-        public static string ApiUrl = "http://localhost:5299/api";
-        private static readonly HttpClient _client = new HttpClient();
-        public static MeDto? CurrentUser { get; private set; }
-        public static string? Token { get; private set; }
+        public static string ApiUrl = "http://localhost:5299/api"; //адресс сервера api
+        private static readonly HttpClient _client = new HttpClient(); //общий HttpClient
+        public static MeDto? CurrentUser { get; private set; } //текущий юзер
+        public static string? Token { get; private set; } //токен для авторизованных запросов
         public static bool IsAuthorized => CurrentUser != null;
         public static bool IsAdmin => CurrentUser?.Role == "Admin";
 
         static Core()
         {
-            _client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+            //обозначение какой тип данных хотим получать (json)
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         private static void SetToken(string token)
         {
+            //токен текущего юзера добавляется в запрос автоматом
             Token = token;
-            _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         private static void ClearAuth()
         {
+            //очистка токена и юзера после выхода
             Token = null;
             CurrentUser = null;
             _client.DefaultRequestHeaders.Authorization = null;
         }
 
-        private static async Task<T?> GetAsync<T>(string url)
+        private static async Task<T?> GetAsync<T>(string url) //GET-запрос 
         {
             var response = await _client.GetAsync(ApiUrl + url);
             response.EnsureSuccessStatusCode();
@@ -49,7 +51,7 @@ namespace MarketplaceSWAGAwpf
             });
         }
 
-        private static async Task<T?> PostAsync<T>(string url, object? body = null)
+        private static async Task<T?> PostAsync<T>(string url, object? body = null) //POST-запрос
         {
             var json = body == null ? "" : JsonSerializer.Serialize(body);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -62,7 +64,7 @@ namespace MarketplaceSWAGAwpf
             });
         }
 
-        private static async Task<T?> PutAsync<T>(string url, object? body = null)
+        private static async Task<T?> PutAsync<T>(string url, object? body = null) //PUT-запрос
         {
             var json = body == null ? "" : JsonSerializer.Serialize(body);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -75,19 +77,18 @@ namespace MarketplaceSWAGAwpf
             });
         }
 
-        private static async Task DeleteAsync(string url)
+        private static async Task DeleteAsync(string url) //DELETE-запрос
         {
             var response = await _client.DeleteAsync(ApiUrl + url);
             response.EnsureSuccessStatusCode();
         }
 
-        // Авторизация
+        //методы, которые вызываются на страницах. Типа оберток обычных запросов POST/PUT/DELETE/GET
         public static async Task<bool> LoginAsync(string login, string password)
         {
             try
             {
-                var result = await PostAsync<LoginResponse>("/auth/login",
-                    new { login, password });
+                var result = await PostAsync<LoginResponse>("/auth/login", new { login, password });
                 if (result != null && !string.IsNullOrEmpty(result.AccessToken))
                 {
                     SetToken(result.AccessToken);
@@ -106,8 +107,7 @@ namespace MarketplaceSWAGAwpf
         {
             try
             {
-                await PostAsync<LoginResponse>("/auth/register",
-                    new { login, password, confirmPassword });
+                await PostAsync<LoginResponse>("/auth/register", new { login, password, confirmPassword });
                 return true;
             }
             catch
@@ -121,20 +121,27 @@ namespace MarketplaceSWAGAwpf
             ClearAuth();
         }
 
-        // Товары
         public static async Task<List<ProductDto>> GetProductsAsync(
             string? search = null, int? categoryId = null,
             decimal? minPrice = null, decimal? maxPrice = null)
         {
             var query = new List<string>();
             if (!string.IsNullOrWhiteSpace(search))
+            {
                 query.Add($"search={Uri.EscapeDataString(search)}");
+            }
             if (categoryId.HasValue)
+            {
                 query.Add($"categoryId={categoryId.Value}");
+            }
             if (minPrice.HasValue)
+            {
                 query.Add($"minPrice={minPrice.Value}");
+            }
             if (maxPrice.HasValue)
+            {
                 query.Add($"maxPrice={maxPrice.Value}");
+            }
             var url = "/products" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
             return await GetAsync<List<ProductDto>>(url) ?? new List<ProductDto>();
         }
@@ -144,7 +151,6 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<ProductDetailsDto>($"/products/{id}");
         }
 
-        // Корзина
         public static async Task<CartDto?> GetCartAsync()
         {
             return await GetAsync<CartDto>("/cart");
@@ -165,7 +171,6 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/cart/{itemId}");
         }
 
-        // Избранное
         public static async Task<List<FavoriteDto>> GetFavoritesAsync()
         {
             return await GetAsync<List<FavoriteDto>>("/favorites") ?? new List<FavoriteDto>();
@@ -181,13 +186,11 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/favorites/{favoriteId}");
         }
 
-        // Заказы
         public static async Task<OrderCreatedDto?> CreateOrderAsync(
             int deliveryMethodId, int? pickupPointId = null, string? address = null,
             int? productId = null, int? quantity = null)
         {
-            return await PostAsync<OrderCreatedDto>("/orders",
-                new { deliveryMethodId, pickupPointId, deliveryAddress = address, productId, quantity });
+            return await PostAsync<OrderCreatedDto>("/orders", new { deliveryMethodId, pickupPointId, deliveryAddress = address, productId, quantity });
         }
 
         public static async Task<List<OrderDto>> GetOrdersAsync(bool all = false, bool sortAsc = false)

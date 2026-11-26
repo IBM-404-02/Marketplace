@@ -16,17 +16,12 @@
 
         <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Center">
             <Label Content="Введите логин" Margin="10"/>
-            <Label Content="Выберите роль" Margin="10"/>
             <Label Content="Введите пароль" Margin="10"/>
             <Label Content="Подтвердите пароль" Margin="10"/>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center">
             <TextBox x:Name="TBLog" Margin="10" Width="200" Height="30"/>
-            <ComboBox x:Name="CBRole" Margin="10" Width="200" Height="30">
-                <ComboBoxItem Content="Пользователь"/>
-                <ComboBoxItem Content="Администратор"/>
-            </ComboBox>
             <PasswordBox x:Name="passBxFrst" Margin="10" Width="200" Height="30"/>
             <PasswordBox x:Name="passBxScnd" Margin="10" Width="200" Height="30"/>
         </StackPanel>
