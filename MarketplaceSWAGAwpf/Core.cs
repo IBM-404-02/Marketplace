@@ -207,7 +207,6 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<OrderDetailsDto>($"/orders/{id}");
         }
 
-        // Отзывы
         public static async Task<List<ReviewDto>> GetReviewsAsync(int productId)
         {
             return await GetAsync<List<ReviewDto>>($"/reviews?productId={productId}") ?? new List<ReviewDto>();
@@ -223,7 +222,6 @@ namespace MarketplaceSWAGAwpf
             await DeleteAsync($"/reviews/{reviewId}");
         }
 
-        // Справочники
         public static async Task<List<CategoryDto>> GetCategoriesAsync()
         {
             return await GetAsync<List<CategoryDto>>("/categories") ?? new List<CategoryDto>();
@@ -245,9 +243,6 @@ namespace MarketplaceSWAGAwpf
             return await GetAsync<List<StatusDto>>("/order-statuses") ?? new List<StatusDto>();
         }
 
-        // Админ: товары
-        // POST /api/products — создание товара
-        // Сервер ждёт ProductRequest: Id, Name, Description, Price, ImagePath, StockQuantity, PackQuantity, IsAvailable, CategoryIds
         public static async Task AdminAddProductAsync(
             string name, string? description, decimal price, string? imagePath,
             int stockQuantity, int? packQuantity, bool isAvailable, List<int> categoryIds)
@@ -266,7 +261,6 @@ namespace MarketplaceSWAGAwpf
             });
         }
 
-        // PUT /api/products — обновление товара (id в теле, не в URL)
         public static async Task AdminUpdateProductAsync(
             int id, string name, string? description, decimal price, string? imagePath,
             int stockQuantity, int? packQuantity, bool isAvailable, List<int> categoryIds)

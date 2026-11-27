@@ -43,12 +43,15 @@ namespace MarketplaceSWAGAwpf.Pages
 
             decimal? min = null, max = null;
             if (decimal.TryParse(TBMinPrice.Text.Replace(',', '.'), out decimal mn))
+            {
                 min = mn;
+            }
             if (decimal.TryParse(TBMaxPrice.Text.Replace(',', '.'), out decimal mx))
+            {
                 max = mx;
+            }
 
-            _allProducts = await Core.GetProductsAsync(
-                TBSearch.Text.Trim(), catId, min, max);
+            _allProducts = await Core.GetProductsAsync(TBSearch.Text.Trim(), catId, min, max);
             LBCatalogue.ItemsSource = _allProducts;
 
             ApplySort();

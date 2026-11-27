@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для AddEditPickupPointPage.xaml
-    /// </summary>
     public partial class AddEditPickupPointPage : Page
     {
         private readonly PickupPointDto _editingPoint;
@@ -48,9 +45,7 @@ namespace MarketplaceSWAGAwpf.Pages
             }
 
             string address = AddressTextBox.Text.Trim();
-            string? workingHours = string.IsNullOrWhiteSpace(WorkingHoursTextBox.Text)
-                ? null
-                : WorkingHoursTextBox.Text.Trim();
+            string? workingHours = string.IsNullOrWhiteSpace(WorkingHoursTextBox.Text) ? null : WorkingHoursTextBox.Text.Trim();
             bool isActive = IsActiveCheckBox.IsChecked ?? true;
 
             if (_editingPoint == null)

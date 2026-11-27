@@ -32,9 +32,13 @@ namespace MarketplaceSWAGAwpf.Pages
                 }
 
                 if (Core.IsAdmin)
+                {
                     NavigationService?.Navigate(new AdminPage());
+                }
                 else
+                {
                     NavigationService?.Navigate(new AccountPage());
+                }
             }
             else
             {

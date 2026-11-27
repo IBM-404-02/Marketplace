@@ -7,9 +7,6 @@ using System.Windows.Controls;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для AddEditProductPage.xaml
-    /// </summary>
     public partial class AddEditProductPage : Page
     {
         private readonly ProductDto _editingProduct;

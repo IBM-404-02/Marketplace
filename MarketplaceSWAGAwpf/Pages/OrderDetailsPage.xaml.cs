@@ -6,9 +6,6 @@ using MarketplaceSWAGAwpf.Models;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для OrderDetailsPage.xaml
-    /// </summary>
     public partial class OrderDetailsPage : Page
     {
         private int _orderId;

@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace MarketplaceSWAGAwpf.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для AdminProductsPage.xaml
-    /// </summary>
     public partial class AdminProductsPage : Page
     {
         public AdminProductsPage()
